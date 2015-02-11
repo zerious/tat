@@ -1,0 +1,32 @@
+{
+  "name": "tat",
+  "description": "tat is a Zerious module",
+  "keywords": [
+    "tat"
+  ],
+  "version": "0.0.0",
+  "main": "tat.js",
+  "homepage": "https://github.com/lighterio/tat",
+  "repository": "https://github.com/lighterio/tat.git",
+  "bugs": {
+    "url": "https://github.com/lighterio/tat/issues"
+  },
+  "author": "Sam Eubank <sameubank@gmail.com>",
+  "contributors": [
+    "Sam Eubank <sameubank@gmail.com>"
+  ],
+  "license": "MIT",
+  "engines": [
+    "node >= 0.2.6"
+  ],
+  "scripts": {
+    "test": "./node_modules/exam/exam.js",
+    "cover": "istanbul cover ./node_modules/exam/exam.js",
+    "report": "open coverage/lcov-report/index.html",
+    "coveralls": "istanbul cover ./node_modules/exam/exam.js --report lcovonly -- -R spec && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "exam": "^0.2.3"
+  }
+}
