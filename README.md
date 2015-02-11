@@ -7,7 +7,7 @@
 [![Support](https://img.shields.io/gratipay/Lighter.io.svg)](https://gratipay.com/Lighter.io/)
 
 
-Tat is a long-polling Node.js server extension and client library.
+Tat is a tiny custom tag polyfill library.
 
 ### Quick Start
 
@@ -15,72 +15,6 @@ Install `tat` in your project:
 ```bash
 npm install --save tat
 ```
-
-Then here's a simple chat server and client:
-```javascript
-var server = require('express')();
-server.listen(80);
-var tat = require('tat');
-tat.setServer(server);
-var messages = [];
-tat
-  .connect(function (beam) {
-    beam.emit('messages', messages);
-  })
-  .on('message', function (text) {
-    var message = {from: this.id, text: data};
-    messages.push(message);
-    tat.emit('messages', [message]);
-  });
-```
-
-```html
-<script src="http://localhost/tat-client.min.js"></script>
-<script>
-Tat()
-  .on('messages', function (data) {
-    console.log(data);
-    beam.emit('my other event', { my: 'data' });
-  });
-</script>
-```
-
-
-## API
-
-#### tat.setServer(Server server)
-Pass an Express-like server to `setServer`, and it will create a Tat server on
-top of the server.
-`route` on any assets that you'd like to route via `server.get`
-
-#### tat.connect(function callback)
-Run a callback when a client connects.
-
-#### tat.on(string name, function callback)
-When a message with a given name is received, run a callback on each client.
-The `callback` takes a `data` argument, and its `this` context is the client
-on which it is being run.
-
-#### tat.handle(string name, function callback)
-Remove any existing handlers for the specified message name, and replace
-with a single `callback`, like calling `tat.on` only once.  This is useful
-for frameworks that reload modules in dev mode rather than restarting the
-server.
-
-#### tat.emit(string name, object data)
-Send a named message with some data to every client.
-
-#### tat.each(callback)
-Run a callback on each client. The `callback` takes a `client` argument.
-
-#### Array tat.clients
-A list of the clients that are connected.
-
-#### Object tat.handlers
-Arrays of message handlers keyed by message name.
-
-#### number tat.pollTimeout
-How long (in milliseconds) to wait before forcing clients to reconnect.
 
 
 ## Acknowledgements
