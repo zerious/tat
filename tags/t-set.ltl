@@ -1,0 +1,14 @@
+if heading
+  br
+  h4 ${heading}
+  . ={_html}
+
++css
+
+  t-set {
+    margin: 0.5em 0!important;
+  }
+
+  t-set>div {
+    display: block;
+  }

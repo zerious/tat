@@ -1,0 +1,45 @@
+table
+  tr
+    for name, text of _data.columns
+      th ${text}
+  for row in _data.rows
+    item = row
+    tr
+      for name, text of _data.columns
+        td ${item[name]}
+
++css
+
+  t-grid table {
+    border-collapse: collapse;
+    border-radius: 0.2em;
+  }
+
+  t-grid td,
+  t-grid th {
+    padding: 0.2em 0.5em;
+    text-align: left;
+    vertical-align: top;
+    font-weight: 400;
+  }
+
+  t-grid th {
+    background: #ddd;
+    color: #666;
+    font-size: 0.9em;
+  }
+
+  t-grid tr {
+    border: 1px solid #ddd;
+    background: #f8f8f8;
+  }
+
+  t-grid tr:hover {
+    border: 1px solid #68b;
+    background: #fff;
+    z-index: 1;
+  }
+
+  t-grid tr:hover td {
+    border-top: 1px solid #68b!important;
+  }

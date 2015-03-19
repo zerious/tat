@@ -1,0 +1,88 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-weight: 400;
+  font-family: _sourceSansPro, Arial;
+}
+
+body,
+td,
+th,
+var,
+button,
+input,
+select,
+textarea {
+  font-size: 16px!important;
+}
+
+pre,
+code,
+tt,
+pre * {
+  font-weight: 400;
+  font-family: _sourceCodePro, Courier;
+}
+
+a {
+  color: #24a;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #e50;
+}
+
+b {
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 2em;
+}
+
+h2 {
+  font-size: 1.6em;
+}
+
+h3 {
+  font-size: 1.3em;
+}
+
+h4 {
+  font-size: 1.1em;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 600;
+  color: #048;
+}
+
+._hidden {
+  display: none;
+}
+
+._nowrap {
+  white-space: nowrap;
+}
+
+._floatLeft {
+  float: left;
+}
+
+._floatRight {
+  float: right;
+}
+
+._alignLeft {
+  text-align: left;
+}
+
+._alignRight {
+  text-align: right;
+}
+
+p, form {
+  margin: 0 0 2em 0;
+}

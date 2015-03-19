@@ -1,0 +1,5 @@
+for link, text of links
+  if location.pathname.indexOf(link)
+    a(href="${link}") ${text}
+  else
+    a._on(href="${link}") ${text}

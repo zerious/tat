@@ -1,0 +1,622 @@
+// _         _         _
+  | |   __ _| |__  ___| |
+  | |__/ _` | '_ \/ -_) |
+  |____\__,_|_.__/\___|_|
+
+  Nesting elements inside a label gives several benefits:
+    * The label acts as a prompt, describing what data it expects.
+    * Validation messages can appear inside the label.
+    * Clicking a label gives focus to an element inside it.
+    * Labels can be highlighted when active.
+
+label ${label}
+
+  // ___
+    |_ _|__ ___ _ _
+     | |/ _/ _ \ ' \
+    |___\__\___/_||_|
+
+  icon = type
+  if type == 'startDate' || type == 'endDate'
+    icon = (type == 'startDate' ? 'date' : 'range')
+    type = 'date'
+
+  if type == 'select' && values !== undefined
+    icon = type = 'multi'
+
+  if type == 'search' || type == 'email' || type == 'url' || type == 'select' || type == 'multi' || type == 'date'
+    t-icon(${icon})
+
+  if type == 'radio'
+    // TODO: Make this crap do something.
+    i._tatRadio
+
+
+  // ___                _
+    |_ _|_ _  _ __ _  _| |_
+     | || ' \| '_ \ || |  _|
+    |___|_||_| .__/\_,_|\__|
+             |_|
+
+  // Give inputs a sensible default width.
+  width = width || '10em'
+
+  if type == 'search'
+    type = 'query'
+
+  // A select field shows options in a dropdown.
+  if type == 'select' || type == 'multi'
+
+    // Build a map of selected values.
+    selected = {}
+    if values !== undefined
+      value = ''
+      for v in values
+        if v
+          selected[v] = options[v]
+          val = v
+          js
+            state.val = state.val.replace([',', '"'], ['&comma;', '&quot;'])
+          value = value + (value ? ',' : '') + val
+    else
+      selected[value] = options[value]
+
+    // Store the value in an input, to support form submission.
+    input._tatSelect(name="${name}" value="${value}")
+
+    // Show the selectable options.
+    options = options || _data
+    var._tatSelect(type="={type}")
+      for key, text of selected
+        if icon == 'multi'
+          a._tatSelected(value="${key}")
+            t-icon(x)
+            : ${text}
+        else
+          : ${text}
+      if icon == 'multi'
+        b._tatPlaceholder
+    ._tatContainer
+      ul._tatDrop
+        for key, text of options
+          isSelected = selected[key]
+          li._tatSelect(value='${key}')
+            if isSelected
+              t-icon(selected)
+            : ${text}
+
+  // A textarea does not use an input tag, but it is designed to look and feel
+  // like a text input.
+  else if type == 'area'
+    textarea(name="${name}" placeholder="${placeholder}") ${value}
+
+  // A button is clickable.
+  else if type == 'button' || type == 'submit' || type == 'create' || type == 'delete'
+    button(name="${name}" type="${type}") ${value || _html}
+
+  // A date field shows a calendar so you can select a date.
+  // TODO: Date picker calendar.
+  else if type == 'date'
+    input._tatDate(name="${name}" value="${value}" placeholder="mm/dd/yy")
+    ._tatContainer
+      ._tatDrop
+
+  // The default is to show a text input, optionally with an HTML5 type.
+  else
+    input(type="${type || 'text'}" name="${name}" value="${value}" placeholder="${placeholder}" style="width:${width}")
+
+
+// ___ _        _
+  / __| |_ _  _| |___
+  \__ \  _| || | / -_)
+  |___/\__|\_, |_\___|
+           |__/
+
+  The t-field custom element adds a significant amount of CSS to the UI asset
+  load in order to style most types of form fields.
+
++css
+
+  /**
+   * A Tat field contains one or more labels or form elements.
+   */
+  t-field {
+    /* The field element acts as a container. */
+    position: relative;
+    /* Allow multiple fields on one line. */
+    display: inline-block;
+  }
+
+  /**
+   * A label appears above a form element.
+   */
+  label {
+    /* Labels are less important than form data. */
+    font-size: 0.9em;
+    /* Light slate gray looks link-ish but unimportant. */
+    color: #abc;
+  }
+
+  /**
+   * When a field is in focus, its label should be lit up.
+   */
+  label._tatLit {
+    /* When lit, a label is slightly darker. */
+    color: #26a;
+  }
+
+  /**
+   * Form elements everywhere should have a common style.
+   */
+  button,
+  input,
+  select,
+  textarea,
+  /* A var acts as a non-editable form element. */
+  var,
+  /* A drop-down (or drop-up) shows an auto-hiding control. */
+  /* This is used for selects, date pickers, color pickers, etc. */
+  ._tatDrop,
+  /* A button looks like a button, even if it's a link. */
+  ._button {
+    outline: 0;
+    border-radius: 0.2em;
+    border: 1px solid #abc;
+    padding: 0.2em 0.4em;
+    background: #fff;
+    color: #333;
+    font-size: 1.2em;
+    font-style: normal;
+  }
+
+  /**
+   * A form element inside a label should have separation.
+   */
+  label>var,
+  label>button,
+  label>input,
+  label>select,
+  label>textarea {
+    /* Make it take up the full width of its container. */
+    display: block;
+    /* Add right and bottom margin to separate form elements slightly. */
+    margin: 0 0.2em 0.2em 0;
+  }
+
+  /**
+   * A container is relatively positioned.
+   */
+  ._tatContainer {
+    position: relative;
+  }
+
+  /**
+   * A drop-down (or drop-up) appears above or below its form field.
+   */
+  ._tatDrop {
+    position: absolute;
+    display: none;
+    list-style-type: none;
+    top: -0.3em;
+    z-index: 1;
+  }
+
+  /**
+   * A drop-down can be opened.
+   */
+  ._tatOpen {
+    display: block;
+  }
+
+  /**
+   * When an input is focused, it should have darker borders and text.
+   */
+  input:focus,
+  select:focus,
+  textarea:focus,
+  label._tatLit>var,
+  ._tatDrop {
+    border-color: #26a;
+    color: #000;
+  }
+
+  /**
+   * A button should look like a button (even if it's a link).
+   */
+  ._button,
+  button,
+  input[type=submit] {
+    border-color: #26a;
+    box-shadow: #48c 0 1px 0 0 inset;
+    background: #26a;
+    text-shadow: #013 0 -1px 0;
+    color: #eef;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.2em 1em;
+    width: auto;
+  }
+
+  /**
+   * When a button is hovered or in focus, it should light up.
+   */
+  ._button:hover,
+  ._button:focus,
+  button:hover,
+  button:focus,
+  input[type=submit]:hover,
+  input[type=submit]:focus {
+    background: #48c;
+    color: #fff;
+  }
+
+  /**
+   * Create buttons are green.
+   */
+  button[type=create] {
+    border-color: #090;
+    box-shadow: #1a1 0 1px 0 0 inset;
+    background: #090;
+    text-shadow: #010 0 -1px 0;
+    color: #efe;
+  }
+  button[type=create]:hover,
+  button[type=create]:focus {
+    background: #1a1;
+    color: #fff;
+  }
+
+  /**
+   * Delete buttons are red.
+   */
+  button[type=delete] {
+    border-color: #900;
+    box-shadow: #b22 0 1px 0 0 inset;
+    background: #900;
+    text-shadow: #100 0 -1px 0;
+    color: #fee;
+  }
+  button[type=delete]:hover,
+  button[type=delete]:focus {
+    background: #b22;
+    color: #fff;
+  }
+
+  /**
+   * Text areas (for descriptions and such) should be fairly wide.
+   */
+  textarea {
+    min-width: 20em;
+  }
+
+  /**
+   * Text inputs (for names and such) shouldn't be as wide.
+   */
+  input {
+    width: 10em;
+  }
+
+  /**
+   * Empty select boxes should have some width.
+   */
+  var {
+    min-width: 3em;
+  }
+
+  /**
+   * A select box's input is hidden, but focusable for tabbing.
+   */
+  input._tatSelect {
+    position: absolute;
+    opacity: 0.01;
+    width: 1px;
+    height: 1px;
+  }
+
+  /**
+   * A search box has an icon on the left.
+   */
+  input[type=search] {
+    padding-left: 1.8em;
+    width: 12em;
+  }
+
+  /**
+   * A date/url/email/etc. input has an icon on the left.
+   */
+  input._tatDate,
+  input[type=url],
+  input[type=email],
+  input[type=query] {
+    padding-left: 2.2em;
+    width: 15em;
+  }
+
+  /**
+   * A date input doesn't need to be very wide.
+   */
+  input._tatDate {
+    width: 7.5em;
+  }
+
+  /**
+   * An end date in a range should overlap the previous field.
+   */
+  t-field[type=endDate] {
+    margin-left: -0.6em;
+  }
+
+  t-field[type=endDate] ._tatDate {
+    border-left: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  /**
+   * An icon can hover over an input.
+   */
+  label>t-icon {
+    position: absolute;
+    left: 0.4em;
+    bottom: 0.4em;
+    opacity: 0.5;
+  }
+
+  /**
+   * A select icon hovers over the right side of a select box.
+   */
+  t-icon[select],
+  t-icon[multi] {
+    left: auto;
+    right: 0.4em!important;
+  }
+
+  label._tatLit>t-icon {
+    opacity: 1;
+  }
+
+  var._tatSelect {
+    padding-right: 1.6em;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    min-height: 1.2em;
+  }
+
+  t-icon[select],
+  t-icon[multi] {
+    cursor: pointer;
+  }
+
+  ul._tatDrop {
+    max-height: 16em;
+    overflow: auto;
+    padding: 0;
+  }
+
+  li._tatSelect {
+    position: relative;
+    display: block;
+    padding: 0.1em 0.6em 0.1em 1.6em;
+    color: #000;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  li._tatSelect._tatLit {
+    background: #eef4ff;
+  }
+
+  /**
+   * A check mark hovers inside a select box list element.
+   */
+  li>t-icon {
+    position: absolute;
+    left: 0.2em;
+    top: 0.2em;
+  }
+
+  /**
+   * A selected item in a multi-select is seen as an inline block with an X.
+   */
+  var._tatSelect[type=multi] {
+    padding: 0 1.4em 0 0.1em;
+  }
+  a._tatSelected {
+    display: inline-block;
+    white-space: nowrap;
+    padding: 0.1em 0.3em;
+    margin: 0.1em;
+    border: 1px solid #eee;
+    border-radius: 0.2em;
+    font-weight: normal;
+    color: #333;
+    cursor: pointer;
+  }
+  a._tatSelected:hover {
+    border-color: #ecc;
+    color: #600;
+  }
+  a._tatSelected:hover>t-icon[x]>svg>path {
+    stroke: #900;
+    stroke-width: 12;
+  }
+  a._tatSelected>t-icon {
+    display: inline-block;
+    vertical-align: absmiddle;
+    font-size: 0.5em;
+  }
+  b._tatPlaceholder {
+    display: inline-block;
+    width: 1px;
+    height: 1.2em;
+  }
+
+// ___         _      _
+  / __| __ _ _(_)_ __| |_
+  \__ \/ _| '_| | '_ \  _|
+  |___/\__|_| |_| .__/\__|
+                |_|
++js
+  (function () {
+
+    // Reference Tat's element map, which points to active elements, etc.
+    var elements = Tat._elements;
+
+    // When anything under a label has focus, give it the "_tatLit" class.
+    Jymin.on('label', 'focus,blur,mousedown,touchstart', function (label, event, element) {
+      elements._litItem = 0;
+      var isLit = event.type != 'blur';
+      Jymin.flipClass(label, '_tatLit', isLit);
+
+      // If something becomes lit, store field/label/input references.
+      if (isLit) {
+        elements._activeField = Jymin.getParent(label);
+        elements._activeLabel = label;
+        elements._activeInput = Jymin.all(label, 'input,select,textarea,button')[0];
+
+        // When a lit field has a drop-down, open the drop-down.
+        Jymin.all(label, '._tatDrop', function (drop) {
+          openDrop(drop);
+
+          // If no item is already lit, highlight the first selected item,
+          // or the first item if no item is selected.
+          var lit = elements._litItem = Jymin.all(drop, '._tatLit')[0];
+          if (!lit) {
+            Jymin.all(drop, 't-icon', function (icon) {
+              var selected = Jymin.getAttribute(icon, 'selected');
+              var notSelected = Jymin.isUndefined(selected);
+              if (!notSelected) {
+                var item = Jymin.getParent(icon);
+                highlightItem(item);
+              }
+              return notSelected;
+            });
+          }
+        })[0];
+      }
+      else {
+        openDrop(0);
+      }
+    });
+
+    // On touch, open a select box.
+    Jymin.on('var._tatSelect', 'mousedown,touchstart,dragstart', function (element, event) {
+      Jymin.preventDefault(event);
+    });
+
+    // Highlight an item (after un-highlighting the old one).
+    function highlightItem(item) {
+      var lit = elements._litItem;
+      if (lit) {
+        Jymin.removeClass(lit, '_tatLit');
+      }
+      if (item) {
+        Jymin.addClass(item, '_tatLit');
+        elements._litItem = item;
+      }
+    }
+
+    // Open a drop-down menu.
+    function openDrop(drop) {
+      var open = elements._openDrop;
+      if (open) {
+        Jymin.removeClass(open, '_tatOpen');
+      }
+      if (drop) {
+        Jymin.addClass(drop, '_tatOpen');
+        elements._openDrop = drop;
+      }
+    }
+
+    // Focus on an input.
+    function focusInput() {
+      var field = elements._activeField;
+      if (field) {
+        Jymin.all(field, 'input', function (input) {
+          ignoreFocus = 1;
+          Jymin.focusElement(input);
+          ignoreFocus = 0;
+        });
+      }
+    }
+
+    // When hovering on an item, light it up.
+    Jymin.on('li._tatSelect', 'mouseover', highlightItem);
+
+    // On untouch, select a select box's list item.
+    Jymin.on('li._tatSelect', 'mousedown,mouseup,touchstart,touchend', selectItem);
+    Jymin.on('a._tatSelected', 'mouseup,touchend', selectItem);
+
+    function selectItem(element) {
+      var value = Jymin.getAttribute(element, 'value');
+      var input = elements._activeInput;
+      var field = elements._activeField;
+      if (field && field._update) {
+        var state = field._state;
+        var values = state.values;
+        var isMulti = (values !== undefined);
+        if (isMulti) {
+          var index = values.indexOf(value);
+          if (index < 0) {
+            values.push(value);
+          }
+          else {
+            delete values[index];
+          }
+        }
+        else {
+          state.value = value;
+        }
+        console.log(state);
+        field._update();
+        setTimeout(function () {
+          focusInput();
+          openDrop(isMulti);
+        }, 0);
+      }
+    }
+
+    // On keydown, interact with any active form elements.
+    Jymin.bind(document, 'keydown', function (element, event) {
+      var code = event.keyCode;
+      var open = elements._openDrop;
+      var lit = elements._litItem;
+      var index, increment, list;
+
+      // If the escape key is pressed, hide a dropdown.
+      if (code == 27) {
+        openDrop(0);
+      }
+
+      // If the up/down keys are pressed, move up/down a list.
+      if (code == 40 || code == 38) {
+        if (lit) {
+          openDrop(open);
+          list = Jymin.all(open, 'li', function (li, i) {
+            if (li == lit) {
+              index = i;
+              return false;
+            }
+          });
+          length = list.length;
+          increment = code - 39;
+          index = (index + increment + length) % length;
+          lit = list[index];
+          highlightItem(lit);
+        }
+      }
+
+      // If the enter or space key is pressed, mimic a mousedown.
+      if (code == 13 || code == 32) {
+        if (lit) {
+          Jymin.trigger(lit, 'mousedown');
+          Jymin.preventDefault(event);
+        }
+      }
+    });
+
+  })();
