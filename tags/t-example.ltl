@@ -1,0 +1,26 @@
+js
+  state._code = state._html
+    .replace(/(^\s*|\s*$)/g, '')
+    .replace(/\n\s{2}/g, '\n');
+
+t-columns
+  t-6 ={_html}
+  t-6>tt ${_code}
+
++css
+  t-example tt {
+    display: block;
+    background: #eee;
+    border: 1px solid #ccc;
+    border-radius: 0.2em;
+    padding: 0.5em;
+    font-size: 0.8em;
+    color: #000;
+    opacity: 0.3;
+    overflow: auto;
+    max-height: 8em;
+  }
+
+  t-example:hover tt {
+    opacity: 1;
+  }

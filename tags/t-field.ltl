@@ -9,6 +9,10 @@
     * Clicking a label gives focus to an element inside it.
     * Labels can be highlighted when active.
 
+  @use ../styles/style.css
+  @use ../styles/fonts.css
+  @use ../styles/blocks.css
+
 label ${label}
 
   // ___
@@ -22,15 +26,13 @@ label ${label}
     type = 'date'
 
   if type == 'select' && values !== undefined
-    icon = type = 'multi'
+    type = 'multi'
 
-  if type == 'search' || type == 'email' || type == 'url' || type == 'select' || type == 'multi' || type == 'date'
+  if type == 'multi'
+    icon = 'select'
+
+  if type == 'search' || type == 'email' || type == 'username' || type == 'password' || type == 'url' || type == 'select' || type == 'multi' || type == 'date'
     t-icon(${icon})
-
-  if type == 'radio'
-    // TODO: Make this crap do something.
-    i._tatRadio
-
 
   // ___                _
     |_ _|_ _  _ __ _  _| |_
@@ -39,56 +41,80 @@ label ${label}
              |_|
 
   // Give inputs a sensible default width.
-  width = width || '10em'
+  width = width || (type == 'area' ? '100%' : '10em')
 
-  if type == 'search'
-    type = 'query'
-
-  // A select field shows options in a dropdown.
-  if type == 'select' || type == 'multi'
+  if type == 'select' || type == 'multi' || type == 'radio' || type == 'checkbox'
 
     // Build a map of selected values.
+    choices = choices || _data
     selected = {}
     if values !== undefined
-      value = ''
       for v in values
         if v
-          selected[v] = options[v]
-          val = v
-          js
-            state.val = state.val.replace([',', '"'], ['&comma;', '&quot;'])
-          value = value + (value ? ',' : '') + val
-    else
-      selected[value] = options[value]
+          selected[v] = choices[v]
+      value = values
+    else if value
+      selected[value] = choices[value]
+
+  // Prevent browser re-styling of a search input.
+  if type == 'search'
+    type = '_tatSearch'
+    width = '18em'
+
+  // Email, username and password inputs have equal widths for login pages.
+  if type == 'email' || type == 'username' || type == 'password'
+    placeholder = placeholder || type
+    width = '12em'
+
+  // Make URL inputs very wide.
+  if type == 'url'
+    width = '18em'
+
+  // Make date inputs just the right size.
+  if type == 'date'
+    width = '8em'
+
+  // A select field shows choices in a dropdown.
+  if type == 'select' || type == 'multi'
 
     // Store the value in an input, to support form submission.
     input._tatSelect(name="${name}" value="${value}")
 
-    // Show the selectable options.
-    options = options || _data
+    // Show the selectable choices.
     var._tatSelect(type="={type}")
-      for key, text of selected
-        if icon == 'multi'
-          a._tatSelected(value="${key}")
+      selectedCount = 0
+      for key, item of selected
+        selectedCount = selectedCount + 1
+        if type == 'multi'
+          a._tatSelected(value='${key}')
             t-icon(x)
-            : ${text}
+            if tag
+              ={tag}(key='${key}') ${item}
+            else
+              : ${item}
         else
-          : ${text}
-      if icon == 'multi'
-        b._tatPlaceholder
+          if tag
+            ={tag}(key='${key}') ${item}
+          else
+            : ${item}
+      if !selectedCount
+        b._tatPlaceholder(${icon}) ${placeholder}
     ._tatContainer
-      ul._tatDrop
-        for key, text of options
+      ._tatDrop
+        for key, item of choices
           isSelected = selected[key]
-          li._tatSelect(value='${key}')
+          a._tatSelect(value='${key}')
             if isSelected
               t-icon(selected)
-            : ${text}
+            if tag
+              ={tag}(key='${key}') ${item}
+            else
+              : ${item}
 
   // A textarea does not use an input tag, but it is designed to look and feel
   // like a text input.
   else if type == 'area'
-    textarea(name="${name}" placeholder="${placeholder}") ${value}
+    textarea(name="${name}" placeholder="${placeholder}" style="width:${width}") ${value}
 
   // A button is clickable.
   else if type == 'button' || type == 'submit' || type == 'create' || type == 'delete'
@@ -100,6 +126,26 @@ label ${label}
     input._tatDate(name="${name}" value="${value}" placeholder="mm/dd/yy")
     ._tatContainer
       ._tatDrop
+
+  // Show one or more checkboxes or radio buttons.
+  else if type == 'checkbox' || type == 'radio'
+    ._tatChoice
+      for key, item of choices
+        label._tatChoice
+          value = selected[key]
+          if selected[key]
+            input._tatChoice(type="={type}" name="_${name}" value='${key}' checked)
+            t-icon._tatSelected(={type})
+          else
+            input._tatChoice(type="={type}" name="_${name}" value='${key}')
+            t-icon._tatSelect(={type})
+          if tag
+            ={tag} ${item}
+          else
+            : ${item}
+        if stacked === ''
+          br
+
 
   // The default is to show a text input, optionally with an HTML5 type.
   else
@@ -125,16 +171,35 @@ label ${label}
     position: relative;
     /* Allow multiple fields on one line. */
     display: inline-block;
+    vertical-align: top;
+    margin: 0 0.25em 0.5em 0;
+  }
+
+  t-field[width="100%"] {
+    display: block;
   }
 
   /**
    * A label appears above a form element.
    */
-  label {
+  t-field>label {
     /* Labels are less important than form data. */
-    font-size: 0.9em;
+    font-size: 0.875em;
     /* Light slate gray looks link-ish but unimportant. */
     color: #abc;
+  }
+
+  /**
+   * When a label is hovered, its input should have slightly darker borders and text.
+   */
+  label:hover>input,
+  label:hover>textarea,
+  label:hover>var {
+    border-color: #89a;
+    color: #000;
+  }
+  label:hover {
+    color: #89a;
   }
 
   /**
@@ -150,7 +215,6 @@ label ${label}
    */
   button,
   input,
-  select,
   textarea,
   /* A var acts as a non-editable form element. */
   var,
@@ -158,33 +222,42 @@ label ${label}
   /* This is used for selects, date pickers, color pickers, etc. */
   ._tatDrop,
   /* A button looks like a button, even if it's a link. */
-  ._button {
-    outline: 0;
-    border-radius: 0.2em;
+  ._tatButton {
+    border-radius: 0.25em;
     border: 1px solid #abc;
-    padding: 0.2em 0.4em;
+    padding: 0.25em 0.5em 0.25em!important;
     background: #fff;
     color: #333;
-    font-size: 1.2em;
+    font-size: 1.25em;
     font-style: normal;
+    outline: 0;
+  }
+
+  button,
+  input,
+  textarea,
+  var,
+  ._tatButton,
+  ._tatSelect,
+  ._tatSelected,
+  ._tatPlaceholder,
+  ._tatDrop {
+    line-height: 1.5!important;
   }
 
   /**
-   * A form element inside a label should have separation.
+   * Form elements should appear below a lab.00el's text.
    */
   label>var,
   label>button,
   label>input,
-  label>select,
-  label>textarea {
-    /* Make it take up the full width of its container. */
+  label>textarea,
+  label>div {
     display: block;
-    /* Add right and bottom margin to separate form elements slightly. */
-    margin: 0 0.2em 0.2em 0;
   }
 
   /**
-   * A container is relatively positioned.
+   * A container ilaels relatively positioned.
    */
   ._tatContainer {
     position: relative;
@@ -197,115 +270,93 @@ label ${label}
     position: absolute;
     display: none;
     list-style-type: none;
-    top: -0.3em;
+    top: -1px;
     z-index: 1;
   }
 
   /**
    * A drop-down can be opened.
    */
-  ._tatOpen {
+  div._tatOpen {
     display: block;
   }
 
   /**
-   * When an input is focused, it should have darker borders and text.
+   * When an input is focused, contrast increases and an outline appears.
    */
   input:focus,
-  select:focus,
   textarea:focus,
+  button:focus,
   label._tatLit>var,
-  ._tatDrop {
+  a._tatButton {
     border-color: #26a;
     color: #000;
+    box-shadow: 0 0 0.125em 0.25em rgba(34,102,170,0.1)!important;
   }
 
   /**
    * A button should look like a button (even if it's a link).
    */
-  ._button,
   button,
-  input[type=submit] {
+  a._tatButton {
     border-color: #26a;
-    box-shadow: #48c 0 1px 0 0 inset;
+    box-shadow: #48c 0 0.0625em 0 0 inset;
     background: #26a;
-    text-shadow: #013 0 -1px 0;
+    text-shadow: #013 0 0.0625em 0;
     color: #eef;
     font-weight: 600;
     cursor: pointer;
-    padding: 0.2em 1em;
+    padding: 0.25em 1em!important;
     width: auto;
   }
 
   /**
    * When a button is hovered or in focus, it should light up.
    */
-  ._button:hover,
-  ._button:focus,
+  a._tatButton:hover,
+  a._tatButton:focus,
   button:hover,
-  button:focus,
-  input[type=submit]:hover,
-  input[type=submit]:focus {
+  button:focus {
     background: #48c;
     color: #fff;
   }
 
   /**
-   * Create buttons are green.
+   * "Create" buttons are green.
    */
   button[type=create] {
-    border-color: #090;
-    box-shadow: #1a1 0 1px 0 0 inset;
+    border-color: #080;
+    box-shadow: #2a2 0 0.0625em 0 0 inset;
     background: #090;
-    text-shadow: #010 0 -1px 0;
+    text-shadow: #010 0 -0.0625em 0;
     color: #efe;
   }
   button[type=create]:hover,
   button[type=create]:focus {
-    background: #1a1;
+    background: #2a2;
     color: #fff;
   }
 
   /**
-   * Delete buttons are red.
+   * "Delete" buttons are red.
    */
   button[type=delete] {
-    border-color: #900;
-    box-shadow: #b22 0 1px 0 0 inset;
+    border-color: #800;
+    box-shadow: #b33 0 0.0625em 0 0 inset;
     background: #900;
-    text-shadow: #100 0 -1px 0;
+    text-shadow: #100 0 -0.0625em 0;
     color: #fee;
   }
   button[type=delete]:hover,
   button[type=delete]:focus {
-    background: #b22;
+    background: #b33;
     color: #fff;
   }
 
   /**
-   * Text areas (for descriptions and such) should be fairly wide.
+   * A select box or radio/checkbox's input is hidden, but focusable for tabbing.
    */
-  textarea {
-    min-width: 20em;
-  }
-
-  /**
-   * Text inputs (for names and such) shouldn't be as wide.
-   */
-  input {
-    width: 10em;
-  }
-
-  /**
-   * Empty select boxes should have some width.
-   */
-  var {
-    min-width: 3em;
-  }
-
-  /**
-   * A select box's input is hidden, but focusable for tabbing.
-   */
+  input._tatChoice,
   input._tatSelect {
     position: absolute;
     opacity: 0.01;
@@ -314,27 +365,17 @@ label ${label}
   }
 
   /**
-   * A search box has an icon on the left.
-   */
-  input[type=search] {
-    padding-left: 1.8em;
-    width: 12em;
-  }
-
-  /**
-   * A date/url/email/etc. input has an icon on the left.
+   * Some inputs must leave room for icons on the left.
    */
   input._tatDate,
-  input[type=url],
   input[type=email],
-  input[type=query] {
-    padding-left: 2.2em;
+  input[type=username],
+  input[type=password],
+  input[type=url],
+  input[type=_tatSearch] {
+    padding-left: 2.25em!important;
     width: 15em;
   }
-
-  /**
-   * A date input doesn't need to be very wide.
-   */
   input._tatDate {
     width: 7.5em;
   }
@@ -343,9 +384,8 @@ label ${label}
    * An end date in a range should overlap the previous field.
    */
   t-field[type=endDate] {
-    margin-left: -0.6em;
+    margin-left: -0.75em;
   }
-
   t-field[type=endDate] ._tatDate {
     border-left: 0;
     border-top-left-radius: 0;
@@ -355,10 +395,10 @@ label ${label}
   /**
    * An icon can hover over an input.
    */
-  label>t-icon {
+  t-field>label>t-icon {
     position: absolute;
-    left: 0.4em;
-    bottom: 0.4em;
+    left: 0.5em;
+    bottom: 0.3875em;
     opacity: 0.5;
   }
 
@@ -368,7 +408,9 @@ label ${label}
   t-icon[select],
   t-icon[multi] {
     left: auto;
-    right: 0.4em!important;
+    right: 0.25em!important;
+    bottom: 0.375em;
+    cursor: pointer;
   }
 
   label._tatLit>t-icon {
@@ -376,62 +418,70 @@ label ${label}
   }
 
   var._tatSelect {
-    padding-right: 1.6em;
+    padding-right: 1.75em!important;
+    min-height: 2.1875em;
+  }
+
+  var._tatSelect {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    min-height: 1.2em;
   }
 
-  t-icon[select],
-  t-icon[multi] {
-    cursor: pointer;
-  }
-
-  ul._tatDrop {
+  ._tatDrop {
     max-height: 16em;
     overflow: auto;
-    padding: 0;
+    margin: 0!important;
+    border-color: #26a!important;
+    padding: 0!important;
+    box-shadow: 0 0.125em 0.125em 0.125em rgba(34,102,170,0.1)!important;
   }
 
-  li._tatSelect {
+  a._tatSelect {
     position: relative;
     display: block;
-    padding: 0.1em 0.6em 0.1em 1.6em;
-    color: #000;
+    margin: 0!important;
+    padding: 0.125em 0.5em 0.125em 1.5em!important;
+    color: #666;
     white-space: nowrap;
     cursor: pointer;
   }
-
-  li._tatSelect._tatLit {
-    background: #eef4ff;
+  a._tatSelect._tatLit {
+    color: #000;
+    background: #eef2ff;
+    border-radius: 0.25em;
   }
 
   /**
    * A check mark hovers inside a select box list element.
    */
-  li>t-icon {
+  a>t-icon[selected] {
     position: absolute;
-    left: 0.2em;
-    top: 0.2em;
+    left: 0.25em!important;
+    top: 0.375em!important;
+  }
+  a>t-icon[selected]>svg {
+    width: 1em;
+    height: 1em;
   }
 
   /**
    * A selected item in a multi-select is seen as an inline block with an X.
    */
   var._tatSelect[type=multi] {
-    padding: 0 1.4em 0 0.1em;
+    padding: 0 1.5em 0 0!important;
   }
-  a._tatSelected {
+  a._tatSelected,
+  var[type=multi]>b._tatPlaceholder {
     display: inline-block;
     white-space: nowrap;
-    padding: 0.1em 0.3em;
-    margin: 0.1em;
+    padding: 0.125em 0.5em 0.125em 0.25em!important;
+    margin: 0.0625em;
     border: 1px solid #eee;
-    border-radius: 0.2em;
+    border-radius: 0.25em;
     font-weight: normal;
     color: #333;
     cursor: pointer;
@@ -442,17 +492,63 @@ label ${label}
   }
   a._tatSelected:hover>t-icon[x]>svg>path {
     stroke: #900;
-    stroke-width: 12;
+    stroke-width: 28;
   }
   a._tatSelected>t-icon {
     display: inline-block;
-    vertical-align: absmiddle;
+    vertical-align: top;
+    margin: 0.75em 0;
     font-size: 0.5em;
   }
   b._tatPlaceholder {
+    color: #ccc!important;
+    border-color: #fff!important;
+    font-weight: normal;
+  }
+  var._tatSelect>*,
+  a._tatSelect>* {
     display: inline-block;
-    width: 1px;
-    height: 1.2em;
+    white-space: nowrap;
+  }
+  var._tatSelect>*>t-icon,
+  a._tatSelect>*>t-icon {
+    display: inline-block;
+    vertical-align: top;
+    margin: -0.125 0.5em 0.125em 0;
+  }
+  var._tatSelect>*>t-icon,
+  a._tatSelect>*>t-icon,
+  var._tatSelect>*>t-icon>svg,
+  a._tatSelect>*>t-icon>svg {
+    width: 1.5em;
+    height: 1.5em;
+  }
+
+  /**
+   * Checkboxes and radios are generically "choices".
+   */
+  label._tatChoice {
+    display: inline-block;
+    margin: 0.125em 0.25em 0.125em 0;
+    padding: 0.25em 0.75em 0.25em 0.375em;
+    /*font-size: 1rem!important;*/
+    color: #666;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  label._tatChoice._tatLit,
+  label._tatChoice:hover {
+    color: #012;
+    background: #eef2ff;
+    border-radius: 0.5em;
+    border-color: #cdf;
+  }
+  t-icon[radio],
+  t-icon[checkbox] {
+    vertical-align: top;
+    width: 1em;
+    height: 1em;
+    margin: -0.125em 0.75em 0 0;
   }
 
 // ___         _      _
@@ -466,6 +562,10 @@ label ${label}
     // Reference Tat's element map, which points to active elements, etc.
     var elements = Tat._elements;
 
+    Jymin.on('._tatDrop', 'mousedown', function (element, event) {
+      Jymin.preventDefault(event);
+    });
+
     // When anything under a label has focus, give it the "_tatLit" class.
     Jymin.on('label', 'focus,blur,mousedown,touchstart', function (label, event, element) {
       elements._litItem = 0;
@@ -474,9 +574,10 @@ label ${label}
 
       // If something becomes lit, store field/label/input references.
       if (isLit) {
-        elements._activeField = Jymin.getParent(label);
-        elements._activeLabel = label;
-        elements._activeInput = Jymin.all(label, 'input,select,textarea,button')[0];
+        elements._activeField = Jymin.getParent(label) || 0;
+        elements._activeLabel = label || 0;
+        elements._activeInput = Jymin.all(label, 'input,select,textarea,button')[0] || 0;
+        elements._activeIndex = 0;
 
         // When a lit field has a drop-down, open the drop-down.
         Jymin.all(label, '._tatDrop', function (drop) {
@@ -488,13 +589,17 @@ label ${label}
           if (!lit) {
             Jymin.all(drop, 't-icon', function (icon) {
               var selected = Jymin.getAttribute(icon, 'selected');
-              var notSelected = Jymin.isUndefined(selected);
+              var notSelected = !Jymin.isUndefined(selected);
               if (!notSelected) {
-                var item = Jymin.getParent(icon);
-                highlightItem(item);
+                lit = Jymin.getParent(icon);
+                highlightItem(lit);
               }
               return notSelected;
             });
+            if (!lit) {
+              lit = Jymin.all(drop, 'a')[0];
+              highlightItem(lit);
+            }
           }
         })[0];
       }
@@ -503,8 +608,23 @@ label ${label}
       }
     });
 
+    // Update icons for radios or checkboxes.
+    Jymin.on('input._tatChoice', 'change', function (input) {
+      var field = Jymin.getParent(input, 't-field');
+      elements._activeField = field;
+      var activeValue = input.value;
+      var values = [];
+      Jymin.all(field, 'input', function (input) {
+        if (input.checked) {
+          values.push(input.value);
+        }
+      });
+      field._update({value: values[0], values: values});
+      focusInput(activeValue);
+    });
+
     // On touch, open a select box.
-    Jymin.on('var._tatSelect', 'mousedown,touchstart,dragstart', function (element, event) {
+    Jymin.on('var._tatSelect,t-icon', 'mousedown,touchstart,dragstart', function (element, event) {
       Jymin.preventDefault(event);
     });
 
@@ -522,6 +642,7 @@ label ${label}
 
     // Open a drop-down menu.
     function openDrop(drop) {
+      var field = elements._activeField;
       var open = elements._openDrop;
       if (open) {
         Jymin.removeClass(open, '_tatOpen');
@@ -533,29 +654,31 @@ label ${label}
     }
 
     // Focus on an input.
-    function focusInput() {
+    function focusInput(activeValue) {
       var field = elements._activeField;
       if (field) {
         Jymin.all(field, 'input', function (input) {
-          ignoreFocus = 1;
-          Jymin.focusElement(input);
-          ignoreFocus = 0;
+          if (Jymin.isUndefined(activeValue) || input.value == activeValue) {
+            Jymin.focusElement(input);
+          }
         });
       }
     }
 
     // When hovering on an item, light it up.
-    Jymin.on('li._tatSelect', 'mouseover', highlightItem);
+    Jymin.on('a._tatSelect', 'mouseover', highlightItem);
 
     // On untouch, select a select box's list item.
-    Jymin.on('li._tatSelect', 'mousedown,mouseup,touchstart,touchend', selectItem);
-    Jymin.on('a._tatSelected', 'mouseup,touchend', selectItem);
+    Jymin.on('a._tatSelect,a._tatSelected', 'mouseup,touchend', selectItem);
 
     function selectItem(element) {
       var value = Jymin.getAttribute(element, 'value');
       var input = elements._activeInput;
       var field = elements._activeField;
-      if (field && field._update) {
+      var parent = Jymin.getParent(element, 't-field');
+      var trail = Jymin.getTrail(element, 't-field');
+
+      if (field && (field == parent) && field._update) {
         var state = field._state;
         var values = state.values;
         var isMulti = (values !== undefined);
@@ -571,12 +694,13 @@ label ${label}
         else {
           state.value = value;
         }
-        console.log(state);
         field._update();
-        setTimeout(function () {
-          focusInput();
-          openDrop(isMulti);
-        }, 0);
+        if (isMulti) {
+          setTimeout(function () {
+            focusInput();
+            openDrop(elements._openDrop);
+          }, 0);
+        }
       }
     }
 
@@ -596,8 +720,8 @@ label ${label}
       if (code == 40 || code == 38) {
         if (lit) {
           openDrop(open);
-          list = Jymin.all(open, 'li', function (li, i) {
-            if (li == lit) {
+          list = Jymin.all(open, 'a', function (a, i) {
+            if (a == lit) {
               index = i;
               return false;
             }
@@ -607,13 +731,14 @@ label ${label}
           index = (index + increment + length) % length;
           lit = list[index];
           highlightItem(lit);
+          Jymin.preventDefault(event);
         }
       }
 
       // If the enter or space key is pressed, mimic a mousedown.
       if (code == 13 || code == 32) {
         if (lit) {
-          Jymin.trigger(lit, 'mousedown');
+          Jymin.trigger(lit, 'mouseup');
           Jymin.preventDefault(event);
         }
       }

@@ -1,7 +1,8 @@
 if heading
   br
   h4 ${heading}
-  . ={_html}
+
+: ={_html}
 
 +css
 

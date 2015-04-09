@@ -1,52 +1,70 @@
-if android === ''
-  svg(viewBox="2 2 28 28")
-    path(fill="#aaa" d="M6.13,11.126c-0.894,0-1.624,0.731-1.624,1.624v6.496c0,0.895,0.73,1.624,1.624,1.624c0.893,0,1.624-0.729,1.624-1.624V12.75C7.754,11.856,7.023,11.126,6.13,11.126zM19.516,4.96l1.32-2.035c0.074-0.113,0.042-0.264-0.07-0.338c-0.113-0.074-0.266-0.041-0.34,0.072l-1.367,2.106c-0.93-0.36-1.966-0.561-3.059-0.561c-1.094,0-2.13,0.201-3.058,0.561l-1.368-2.106c-0.073-0.113-0.225-0.145-0.338-0.072c-0.113,0.074-0.145,0.225-0.072,0.338l1.321,2.035c-2.186,1.009-3.674,2.928-3.717,5.138h14.464C23.189,7.888,21.702,5.969,19.516,4.96zM12.898,8.062c-0.459,0-0.832-0.373-0.832-0.832s0.373-0.832,0.832-0.832c0.46,0,0.832,0.373,0.832,0.832S13.358,8.062,12.898,8.062zM19.102,8.062c-0.459,0-0.832-0.373-0.832-0.832s0.373-0.832,0.832-0.832s0.832,0.373,0.832,0.832S19.561,8.062,19.102,8.062zM25.87,11.126c-0.894,0-1.624,0.731-1.624,1.624v6.496c0,0.895,0.73,1.624,1.624,1.624s1.624-0.729,1.624-1.624V12.75C27.494,11.856,26.764,11.126,25.87,11.126zM8.756,22.904c0,0.723,0.591,1.312,1.314,1.312h1.363v3.61c0,0.896,0.731,1.624,1.625,1.624c0.893,0,1.624-0.729,1.624-1.624v-3.611h2.636v3.61c0,0.896,0.729,1.624,1.625,1.624c0.894,0,1.623-0.729,1.623-1.624v-3.61h1.363c0.723,0,1.312-0.591,1.312-1.312V11.07H8.756V22.904z")
+svg(viewBox="0 0 120 120")
+  if ios === ''
+    path(d="M102,40c-18,12-16,34,2,42c-14,38-28,30-32,28c-6-3-16-3-22,0c-4,2-18,10-32-28c-14-38,14-60,34-50c6,3,8,3,14,0c6-3,24-8,36,8zm-43-12c-2-8,4-24,22-26c2,14-10,26-22,26z")
 
-else if ios === ''
-  svg(viewBox="1 2 27 28")
-    path(fill="#aaa" d="M24.32,10.85c-1.743,1.233-2.615,2.719-2.615,4.455c0,2.079,1.078,3.673,3.232,4.786c-0.578,1.677-1.416,3.134-2.514,4.375c-1.097,1.241-2.098,1.862-3.004,1.862c-0.427,0-1.009-0.143-1.748-0.423l-0.354-0.138c-0.725-0.281-1.363-0.423-1.92-0.423c-0.525,0-1.1,0.11-1.725,0.331l-0.445,0.16l-0.56,0.229c-0.441,0.176-0.888,0.264-1.337,0.264c-1.059,0-2.228-0.872-3.507-2.616c-1.843-2.498-2.764-5.221-2.764-8.167c0-2.095,0.574-3.781,1.725-5.061c1.149-1.279,2.673-1.92,4.568-1.92c0.709,0,1.371,0.13,1.988,0.389l0.423,0.172l0.445,0.183c0.396,0.167,0.716,0.251,0.959,0.251c0.312,0,0.659-0.072,1.04-0.217l0.582-0.229l0.435-0.16c0.693-0.251,1.459-0.377,2.297-0.377C21.512,8.576,23.109,9.334,24.32,10.85zM19.615,3.287c0.021,0.267,0.033,0.473,0.033,0.617c0,1.317-0.479,2.473-1.438,3.467s-2.075,1.49-3.347,1.49c-0.038-0.297-0.058-0.51-0.058-0.639c0-1.12,0.445-2.171,1.337-3.153c0.891-0.982,1.922-1.558,3.096-1.725C19.32,3.329,19.447,3.311,19.615,3.287z")
+  else if android === ''
+    g(stroke-linejoin="round")
+      path(stroke-width="14" d="M18,46v30zm30,46v18zm24,0v18zm30-46v30z")
+      path(stroke-width="0" d="M92,38c0-38-64-38-64,0m0,3v48c0,4,2,6,6,6h52c4,0,6-2,6-6v-48zm14-16c0-4,6-4,6,0c0,4-6,4-6,0m30,0c0-4,6-4,6,0c0,4-6,4-6,0z")
+      path(stroke-width="2" d="M40,4l10,18zm40,0l-10,18z")
 
-else
-  svg(viewBox="0 0 60 60" fill="transparent")
+  else if windows === ''
+    path(d="M10,28l36-5.8v36h-36zM10,61h36v36l-36-4zM49.2,21.6l50-8v44.4h-50zM49.2,61.2h50v42.4l-50-6z")
 
-    if windows === ''
-      path(fill="#aaa" d="M5,14l18-2.9v18h-18zM5,30.5h18v18l-18-2zM24.6,10.8l25-4v22.2h-25zM24.6,30.6h25v21.2l-25-3z")
+  else if desktop === ''
+    path._tatIconLightFill(stroke-width="8" stroke-linejoin="round" d="M16,84v-56h88v56zm4,16h38l2-16l2,16h38l12,6h-104z")
 
-    else if web === ''
-      path(fill="#aaa" d="M50,10c2,0,4,2,4,4v25c0,2-2,4-4,4h-40c-2,0-4-2-4-4v-25c0-2,2-4,4-4zm0,4h-40v25h40zm0,30c2,0,3,1,4,2l4,4c1,1,0,2-2,2h-52c-2,0-3-1-2-2l4-4c1-1,2-2,4-2z")
+  else if search === ''
+    g(stroke-width="10" stroke-linejoin="round")
+      circle._tatIconLightFill(cx="48" cy="48" r="32")
+      path(fill="#aaa" d="M72,72l12,20l20,20l8-8l-20-20z")
 
-    else if search === ''
-      g(stroke="#aaa" stroke-width="6" fill="transparent")
-        circle(cx="24" cy="24" r="15")
-        path(d="M36,36l6,10l10,10l4-4l-10-10z")
+  else if date === ''
+    g(stroke-width="0")
+      path(d="M10,16h16v8c0,14,20,14,20,0v-8h28v8c0,14,20,14,20,0v-8h16v92h-100zm20,8c0,8,12,8,12,0v-12c0-8-12-8-12,0zm48,0c0,8,12,8,12,0v-12c0-8-12-8-12,0z")
+      path._tatIconLightFill(d="M16,42h88v60h-88z")
 
-    else if date === ''
-      path(fill="#aaa" d="M3,8h8v4c0,7,10,7,10,0v-4h14v4c0,7,10,7,10,0v-4h8v46h-50zm10,4c0,4,6,4,6,0v-8c0-4-6-4-6,0zm24,0c0,4,6,4,6,0v-8c0-4-6-4-6,0zm12,9h-42v30h42z")
+  else if email === ''
+    path._tatIconLightFill(stroke-width="6" d="M10,30v60h100v-60h-100v4l50,36l50-36m0,54l-36-26m-28,0l-36,26")
 
-    else if email === ''
-      path(fill="#aaa" d="M1,16l20,15l-20,15zM2,14l28,21l28-21z")
-      path(fill="#aaa" d="M58,48h-56l20.8-15.6l7.2,5.4l7.2-5.2z")
-      path(fill="#aaa" d="M59,16l-20,15l20,15z")
+  else if username === ''
+    path._tatIconLightFill(stroke-width="6" d="M8,115c-4-16,4-30,38-36v-6c-4-4-4-6-6-14c-8-4-8-14-4-18c-8-12,4-50,32-32c6-2,20,0,16,32c4,4,4,14-4,18c-2,8,-2,10-6,14v6c34,8,42,22,38,36z")
 
-    else if url === ''
-      g(stroke="#aaa" stroke-width="3")
-        circle(cx="30" cy="30" r="26")
-        path(d="M4,30h52M8,16h44M8,44h44M30,4v52M30,4c18,10,18,42,0,52M30,4c-18,10-18,42,0,52")
+  else if password === ''
+    path._tatIconLightFill(stroke-width="6" d="M18,50v60h84v-60zm12,0v-15c0-40,60-40,60,0v15h-12v-15c0-24-36-24-36,0v15m-12,16h60m0,14h-60m0,14h60")
 
-    else if range === ''
-      path(stroke="#aaa" stroke-width="6" d="M0,30h20")
+  else if web === ''
+    g._tatIconLightFill(stroke-width="5")
+      circle(cx="60" cy="60" r="52")
+      path(d="M8,60h104M16,32h88M16,88h88M60,8v104M60,8c36,20,36,84,0,104M60,8c-36,20-36,84,0,104")
 
-    else if select === ''
-      path(stroke="#aaa" stroke-width="8" d="M18,25l12,12l12-12")
+  else if url === ''
+    g._tatIconLightFill(stroke-width="5")
+      path(d="M18,78c-16,16,8,40,24,24l12-12c16-16-8-40-24-24zm18,18c-8,8-20-4-12-12l12-12c8-8,20,4,12,12zM66,30c-16,16,8,40,24,24l12-12c16-16-8-40-24-24zm18,18c-8,8-20-4-12-12l12-12c8-8,20,4,12,12z")
+      path(d="M42,72c-4,4,2,10,6,6l30-30c4-4-2-10-6-6z")
 
-    else if multi === ''
-      path(stroke="#aaa" stroke-width="6" d="M18,18l12,12l12-12M18,32l12,12l12-12")
+  else if range === ''
+    path(stroke-width="12" d="M5,60h40")
 
-    else if selected === ''
-      path(stroke="#26a" stroke-width="6" d="M10,22l8,12l20-25")
+  else if select === ''
+    path(d="M36,40l24,30l24-30z")
 
-    else if x === ''
-      path(stroke="#ddd" stroke-width="8" d="M15,15l30,30m0-30l-30,30")
+  else if multi === ''
+    path(d="M36,30h48v12h-48zm0,20l24,30l24-30z")
+
+  else if selected === ''
+    path(stroke="#26a" fill="none" stroke-width="20" d="M28,48l20,32l56-70")
+
+  else if x === ''
+    path(stroke="#ddd" stroke-width="20" d="M30,30l60,60m0-60l-60,60")
+
+  else if radio === ''
+    circle._tatChoice(stroke-width="8" cx="50" cy="60" r="46")
+    circle._tatSelected(fill="none" cx="50" cy="60" r="24")
+
+  else if checkbox === ''
+    path._tatChoice(stroke-width="8" d="M6,40c0-16,8-24,24-24h40c16,0,24,8,24,24v40c0,16-8,24-24,24h-40c-16,0-24-8-24-24z")
+    path._tatSelected(stroke="none" fill="none" stroke-width="20" d="M18,48l20,32l56-70")
 
 
 +css
@@ -56,9 +74,31 @@ else
 
   t-icon,
   t-icon>svg {
-    width: 1.6em;
-    height: 1.6em;
+    width: 1.75em;
+    height: 1.75em;
+    stroke-width: 0;
+    stroke: #aaa;
+    fill: #aaa;
   }
 
+  ._tatIconLightFill {
+    fill: #f8f8f8;
+  }
+
+  path._tatChoice,
+  circle._tatChoice {
+    stroke: #abc;
+    fill: #fff;
+  }
+  t-icon._tatSelected>svg>path._tatChoice,
+  t-icon._tatSelected>svg>circle._tatChoice {
+    fill: #cdf;
+  }
+  t-icon._tatSelected>svg>path._tatSelected {
+    stroke: #26a;
+  }
+  t-icon._tatSelected>svg>circle._tatSelected {
+    fill: #26a;
+  }
 
 : ={_html}

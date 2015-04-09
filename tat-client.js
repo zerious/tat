@@ -11,8 +11,208 @@
  *
  * Source files:
  *   https://github.com/lighterio/tat/blob/master/scripts/tat-jymin.js
+ *   https://github.com/lighterio/jymin/blob/master/jymin.js
+ */
+
+
+/**
+ * This file is used in conjunction with Jymin to form the Tat client.
+ *
+ * If you're already using Jymin, you can use this file with it.
+ * Otherwise use ../tat-client.js which includes the required Jymin functions.
+ *
+ * @uses jymin/jymin.js
+ */
+
+/**
+ * Tat is a function that accepts new tags.
+ *
+ * @param {String}   tagName   A custom HTML tag name.
+ * @param {Function} template  A template function used to generate HTML.
+ */
+var Tat = window.Tat = function (tagName, template) {
+  Tat._registerTag(tagName, template);
+  Tat._tags[tagName] = template;
+};
+
+/**
+ * Keep a map of custom tags by tag name.
+ *
+ * @type {Object}
+ */
+Tat._tags = {
+  '$': function(v){return (!v&&v!==0?'':(typeof v=='object'?Jymin.stringify(v)||'':''+v)).replace(/</g,'&lt;');},
+  '&': function(v){return Jymin.escape(!v&&v!==0?'':''+v);}
+};
+
+/**
+ * Register a new custom tag.
+ *
+ * @param {String}   tagName   A custom HTML tag name.
+ * @param {Function} template  A template function used to generate HTML.
+ */
+Tat._registerTag = function (tagName, template) {
+  //if (!Tat._tags[tagName]) {
+    if (document.registerElement) {
+      document.registerElement(tagName, {
+        prototype: Object.create(HTMLElement.prototype, {
+          createdCallback: {
+            value: function () {
+              Tat._populateElement(this, template);
+            }
+          }
+        })
+      });
+    }
+    else if (!Tat._fallback) {
+      function populate(element) { // jshint ignore:line
+        var tag = Jymin.getTag(element);
+        var template = Tat._tags[tag];
+        if (template) {
+          Tat._populateElement(element, template);
+        }
+      }
+      Tat._fallback = function (readyElement) {
+        Jymin.all(readyElement, '*', populate);
+      };
+      Jymin.onReady(Tat._fallback);
+      Jymin.bind(document, 'DOMNodeInserted', function (element, event, target) {
+        Tat._fallback = Jymin.doNothing;
+        populate(target);
+      });
+    }
+  //}
+};
+
+/**
+ * Populate HTML into a custom element by rendering a template.
+ *
+ * @param {HTMLElement} element   An HTML element to populate.
+ * @param {Function}    template  A template function used to generate HTML.
+ */
+Tat._populateElement = function (element, template) {
+  if (!element._template) {
+
+    // Get the element's innerHTML, and use it to initialize its state.
+    var html = Jymin.getHtml(element);
+    var state = {
+      _html: html,
+      _data: Tat._parseValue(html)
+    };
+
+    // Add each attribute to the state.
+    Jymin.forEach(element.attributes, function (pair) {
+      var name = pair.name;
+      var value = Jymin.getAttribute(element, name);
+      state[name] = Tat._parseValue(value);
+    });
+
+    // Save what we need for rendering, and render.
+    element._state = state;
+    element._template = template;
+    element._update = Tat._proto._update;
+    element._render = Tat._proto._render;
+    element._render();
+  }
+};
+
+Tat._proto = {};
+
+/**
+ * Decorate an element's state with new data, and re-render it.
+ *
+ * @param  {Object} data  Properties and values to decorate the state.
+ * @return {HTMLElement}
+ */
+Tat._proto._update = function (data) {
+  var self = this;
+  Jymin.decorateObject(self._state, data);
+  self._render();
+  return self;
+};
+
+Tat._renders = {};
+
+/**
+ * Render an element's HTML, and if it's different from before, set it.
+ * TODO: DOM diff.
+ */
+Tat._proto._render = function () {
+  var self = this;
+  var html = self._template.call(Tat._tags, self._state);
+  if (html != self._renderedHtml) {
+
+    // TODO: Remove this because it's just for debugging.
+    var tag = Jymin.getTag(self);
+    Tat._renders[tag] = (Tat._renders[tag] || 0) + 1;
+
+    Jymin.setHtml(self, html);
+    self._renderedHtml = html;
+    if (document._isReady || Tat._fallback) {
+      Jymin.ready(self);
+    }
+  }
+  return self;
+};
+
+/**
+ * Evaluate a value as non-strict JSON if it looks object or array notation.
+ *
+ * @param  {String} value  A string to parse.
+ * @return {String}        The resulting string or object.
+ */
+Tat._parseValue = function (value) {
+  // If it starts with a brace or bracket, assume JSON.
+  if (/^\s*[\{\[]/.test(value)) {
+    // Try to parse the value, but on failure, use the value as a string.
+    value = Jymin.parse(value, value);
+  }
+  return value;
+};
+
+/**
+ * Listen for state changes on a list of events.
+ *
+ * @param  {String|Array} events  A list of events.
+ */
+Tat._listenForStateEvents = function (events) {
+  Jymin.on('state', events, function (parent, event, element) {
+    if (/^(button|input|select|textarea)$/.test(Jymin.getTag(element))) {
+    }
+  });
+};
+
+/**
+ * Bind to state changes.
+ */
+Tat._listenForStateEvents('blur,change,click,copy,cut,' +
+  'drag,dragenter,dragleave,dragover,dragstart,drop,' +
+  'focus,keydown,keypress,keyup,mousedown,mousemove,' +
+  'mouseout,mouseover,mousewheel,paste,scroll,submit,select');
+
+/**
+ * Store a map of Tat elements for various purposes:
+ * - Active form elements.
+ * - Last clicked element.
+ *
+ * @type {Object}
+ */
+Tat._elements = {};
+/**      _                 _               _   ___   ___
+ *      | |_   _ _ __ ___ (_)_ __   __   _/ | / _ \ / _ \
+ *   _  | | | | | '_ ` _ \| | '_ \  \ \ / / || | | | | | |
+ *  | |_| | |_| | | | | | | | | | |  \ V /| || |_| | |_| |
+ *   \___/ \__, |_| |_| |_|_|_| |_|   \_/ |_(_)___(_)___/
+ *         |___/
+ *
+ * http://lighter.io/jymin
+ *
+ * If you're seeing this in production, you really should minify.
+ *
+ * Source files:
  *   https://github.com/lighterio/jymin/blob/master/scripts/ajax.js
  *   https://github.com/lighterio/jymin/blob/master/scripts/arrays.js
+ *   https://github.com/lighterio/jymin/blob/master/scripts/charts.js
  *   https://github.com/lighterio/jymin/blob/master/scripts/cookies.js
  *   https://github.com/lighterio/jymin/blob/master/scripts/crypto.js
  *   https://github.com/lighterio/jymin/blob/master/scripts/dates.js
@@ -38,36 +238,31 @@
  */
 
 
-/**
- * This file is used in conjunction with Jymin to form the Tat client.
- *
- * If you're already using Jymin, you can use this file with it.
- * Otherwise use ../d6-client.js which includes required Jymin functions.
- */
+var Jymin = {version: '1.0.0'};
 
-/**
- * Tat is a function that accepts new tags.
- */
-var Tat = window.Tat = function (newTags) {
+//+env:commonjs
+// Support CommonJS.
+if (typeof exports == 'object') {
+  module.exports = Jymin;
+}
+//-env:commonjs
 
-  var tags = Tat._tags = Tat._tags || {};
-  var tagNames = [];
-
-  Jymin.forIn(newTags, function (name, tag) {
-    tags[name] = tag;
-    tagNames = [];
+//+env:amd
+// Support AMD.
+else if (typeof define == 'function' && define.amd) {
+  define(function() {
+    return Jymin;
   });
+}
+//-env:amd
 
-  var selector = tagNames.join(name);
-  Jymin.all(selector, function (element) {
+//+env:window
+// Support browsers.
+else {
+  this.Jymin = Jymin;
+}
+//-env:window
 
-  });
-
-  if (!Tat.isReady) {
-    Tat._isReady = true;
-    Jymin.trigger(Tat, 'ready');
-  }
-};
 /**
  * Empty handler.
  * @type {function}
@@ -99,14 +294,10 @@ Jymin.XHR = 'XMLHttpRequest';
  */
 Jymin.getXhr = function () {
   var xhr;
-  //+browser:old
-  xhr = window.XMLHttpRequest ? new XMLHttpRequest() :
-    window.ActiveXObject ? new ActiveXObject('Microsoft.XMLHTTP') : // jshint ignore:line
-    false;
-  //-browser:old
-  //+browser:ok
+
+
   xhr = new XMLHttpRequest();
-  //-browser:ok
+
   return xhr;
 };
 
@@ -331,6 +522,38 @@ Jymin.padArray = function (array, padToLength, paddingValue) {
     }
   }
   return countAdded;
+};
+/**
+ * Get an XMLHttpRequest object (or ActiveX object in old IE).
+ *
+ * @return {XMLHttpRequest}   The request object.
+ */
+Jymin.getChartColors = function () {
+  var colors = Jymin.getChartColors._cache;
+  if (!colors) {
+    var map = {};
+    var string =
+      '03f290c00fc00dfb0f00605090307bf0f7409f9f7a07fdf0' +
+      'f97686f09f8074872d8a0f05a200a7633bcf230bd90b1908' +
+      '014c89f7a0ff045faf78304a9dcb9798eb80402df70fcfd6' +
+      '6000899f574be6f0f7f640536685a4a54afdfb609fe5b666';
+    colors = [];
+    for (var i = 0; i < 3; i++) {
+      for (var j = 0; j < 63; j++) {
+        var background = string.substr(j * 3 + i, 3);
+        var border = background.replace(/[1-9a-f]/g, function (n) {
+          return Math.ceil(new Number('0x' + n) / 1.7);
+        });
+        if (!map[border]) {
+          map[border] = 1;
+          colors.push({background: background, border: border});
+        }
+      }
+    }
+    Jymin.getChartColors._cache = colors;
+  }
+  console.log(colors.length);
+  return colors;
 };
 /**
  * Get all cookies from the document, and return a map.
@@ -579,17 +802,10 @@ Jymin.getTime = function (date) {
  */
 Jymin.getIsoDate = function (date) {
   date = date || new Date();
-  //+browser:ok
+
   date = date.toISOString();
-  //-browser:ok
-  //+browser:old
-  var utcPattern = /^.*?(\d+) (\w+) (\d+) ([\d:]+).*?$/;
-  date = date.toUTCString().replace(utcPattern, function (a, day, m, y, t) {
-    m = Jymin.zeroFill(date.getMonth(), 2);
-    t += '.' + Jymin.zeroFill(date.getMilliseconds(), 3);
-    return y + '-' + m + '-' + day + 'T' + t + 'Z';
-  });
-  //-browser:old
+
+
   return date;
 };
 
@@ -688,11 +904,12 @@ Jymin.getElement = function (parentElement, idOrElement) {
  * @return {HTMLElement}           The parent or matching ancestor.
  */
 Jymin.getParent = function (element, selector) {
-  return Jymin.getTrail(element, selector)[1];
+  return Jymin.getTrail(element, selector)[selector ? 0 : 1];
 };
 
 /**
- * Get the trail that leads back to the root, optionally filtered by a selector.
+ * Get the trail that leads back to the root starting with a given
+ * element, optionally filtered by a selector.
  *
  * @param  {HTMLElement} element   An element to start the trail.
  * @param  {String}      selector  An optional selector to filter the trail.
@@ -703,6 +920,7 @@ Jymin.getTrail = function (element, selector) {
   while (element = element.parentNode) { // jshint ignore:line
     Jymin.push(trail, element);
   }
+  // TODO: Test ordering more thoroughly.
   if (selector) {
     var set = trail;
     trail = [];
@@ -954,6 +1172,27 @@ Jymin.getText = function (element) {
 };
 
 /**
+ * Set the text of an element.
+ *
+ * @param  {HTMLElement} element  An element.
+ * @return {String}      text     A text string to set.
+ */
+Jymin.setText = function (element, text) {
+  Jymin.clearElement(element);
+  Jymin.addText(element, text);
+};
+
+/**
+ * Add text to an element.
+ *
+ * @param  {HTMLElement} element  An element.
+ * @return {String}      text     A text string to add.
+ */
+Jymin.addText = function (element, text) {
+  Jymin.addElement(element, document.createTextNode(text));
+};
+
+/**
  * Get an attribute from an element.
  *
  * @param  {HTMLElement} element        An element.
@@ -1111,54 +1350,10 @@ Jymin.all = function (parentElement, selector, fn) {
     parentElement = document;
   }
   var elements;
-  //+browser:old
-  elements = [];
-  if (Jymin.contains(selector, ',')) {
-    Jymin.forEach(selector, function (selector) {
-      Jymin.all(parentElement, selector, function (element) {
-        Jymin.push(elements, element);
-      });
-    });
-  }
-  else if (Jymin.contains(selector, ' ')) {
-    var pos = selector.indexOf(' ');
-    var preSelector = selector.substr(0, pos);
-    var postSelector = selector.substr(pos + 1);
-    elements = [];
-    Jymin.all(parentElement, preSelector, function (element) {
-      var children = Jymin.all(element, postSelector);
-      Jymin.merge(elements, children);
-    });
-  }
-  else if (selector[0] == '#') {
-    var id = selector.substr(1);
-    var child = Jymin.getElement(parentElement.ownerDocument || document, id);
-    if (child) {
-      var parent = Jymin.getParent(child);
-      while (parent) {
-        if (parent === parentElement) {
-          elements = [child];
-          break;
-        }
-        parent = Jymin.getParent(parent);
-      }
-    }
-  }
-  else {
-    selector = selector.split('.');
-    var tagName = selector[0];
-    var className = selector[1];
-    var tagElements = parentElement.getElementsByTagName(tagName);
-    Jymin.forEach(tagElements, function (element) {
-      if (!className || Jymin.hasClass(element, className)) {
-        Jymin.push(elements, element);
-      }
-    });
-  }
-  //-browser:old
-  //+browser:ok
+
+
   elements = parentElement.querySelectorAll(selector);
-  //-browser:ok
+
   if (fn) {
     Jymin.forEach(elements, fn);
   }
@@ -1180,12 +1375,10 @@ Jymin.one = function (parentElement, selector, fn) {
     parentElement = document;
   }
   var element;
-  //+browser:old
-  element = Jymin.all(parentElement, selector)[0];
-  //-browser:old
-  //+browser:ok
+
+
   element = parentElement.querySelector(selector);
-  //-browser:ok
+
   if (element && fn) {
     fn(element);
   }
@@ -1520,7 +1713,7 @@ Jymin.apply = function (object, methodName, args) {
  */
 Jymin.getHistory = function () {
   var history = window.history || {};
-  Jymin.forEach(['Jymin.push', 'replace'], function (key) {
+  Jymin.forEach(['push', 'replace'], function (key) {
     var fn = history[key + 'State'];
     history[key] = function (href) {
       if (fn) {
@@ -1558,7 +1751,7 @@ Jymin.historyPop = function () {
  * Listen for a history change.
  */
 Jymin.onHistoryPop = function (callback) {
-  Jymin.bind(window, 'Jymin.popstate', callback);
+  Jymin.bind(window, 'popstate', callback);
 };
 /**
  * The values in this file can be overridden externally.
@@ -1651,28 +1844,29 @@ Jymin.safeStringify = function (data, stack) {
  */
 Jymin.stringify = function (data) {
   var json;
-  //+browser:old
-  json = Jymin.safeStringify(data);
-  //-browser:old
-  //+browser:ok
+
+
   json = JSON.stringify(data);
-  //-browser:ok
+
+  return json;
 };
 
 /**
  * Parse JavaScript and return a value.
  */
-Jymin.parse = function (value) {
+Jymin.parse = function (value, alternative) {
   try {
     var evil = window.eval; // jshint ignore:line
     evil('eval.J=' + value);
-    return evil.J;
+    value = evil.J;
   }
   catch (e) {
     //+env:debug
     Jymin.error('[Jymin] Could not parse JS: ' + value);
     //-env:debug
+    value = alternative;
   }
+  return value;
 };
 
 /**
@@ -1766,39 +1960,27 @@ Jymin.ifConsole = function (method, args) {
   }
 };
 /**
- * Retain a reference to the document body.
- * @type {[type]}
- */
-Jymin.body = document.body;
-
-/**
  * Scroll the top of the page to a specified Y position.
  *
- * @param  {[type]} top  A specified Y position, in pixels.
+ * @param  {Integer} top  A specified Y position, in pixels.
  */
 Jymin.scrollTop = function (top) {
-  Jymin.body.scrollTop = document.documentElement.scrollTop = top;
+  document.body.scrollTop = (document.documentElement || 0).scrollTop = top;
 };
 
 /**
  * Scroll the top of the page to a specified named anchor.
  *
- * @param  {[type]} name [description]
- * @return {[type]}      [description]
+ * @param  {String} name  The name of an HTML anchor.
+ * @return {String}
  */
 Jymin.scrollToAnchor = function (name) {
   var offset = 0;
   var element;
-  //+browser:old
-  Jymin.all('a', function (anchor) {
-    if (anchor.name == name) {
-      element = anchor;
-    }
-  });
-  //-browser:old
-  //+browser:ok
+
+
   element = Jymin.all('a[name=' + name + ']')[0];
-  //-browser:ok
+
   while (element) {
     offset += element.offsetTop || 0;
     element = element.offsetParent || 0;
@@ -1885,20 +2067,22 @@ Jymin.ensureProperty = function (object, property, defaultValue) {
  */
 Jymin.onReady = function (fn) {
 
-  // If the document has no triggerable listeners, we should bind.
-  if (!document._events) {
-    Jymin.bindReady(document, function () {
-      Jymin.trigger(document, 'ready');
-    });
-  }
-
   // If the document is ready, run the function now.
   if (document._isReady) {
     fn(document);
   }
 
+  // Otherwise, bind the ready handler.
+  else {
+    Jymin.bindReady(document, function () {
+      Jymin.trigger(document, 'ready');
+    });
+  }
+
   // Bind to the document's Jymin-triggered ready event.
-  Jymin.bind(document, 'ready', fn);
+  Jymin.bind(document, 'ready', function (element, event, target) {
+    fn(target);
+  });
 };
 
 /**

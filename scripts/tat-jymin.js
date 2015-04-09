@@ -35,35 +35,33 @@ Tat._tags = {
  * @param {Function} template  A template function used to generate HTML.
  */
 Tat._registerTag = function (tagName, template) {
-  if (!Tat._tags[tagName]) {
-    if (document.registerElement) {
-      document.registerElement(tagName, {
-        prototype: Object.create(HTMLElement.prototype, {
-          createdCallback: {
-            value: function () {
-              Tat._populateElement(this, template);
-            }
+  if (document.registerElement) {
+    document.registerElement(tagName, {
+      prototype: Object.create(HTMLElement.prototype, {
+        createdCallback: {
+          value: function () {
+            Tat._populateElement(this, template);
           }
-        })
-      });
-    }
-    else if (!Tat._fallback) {
-      function populate(element) { // jshint ignore:line
-        var tag = Jymin.getTag(element);
-        var template = Tat._tags[tag];
-        if (template) {
-          Tat._populateElement(element, template);
         }
+      })
+    });
+  }
+  else if (!Tat._fallback) {
+    function populate(element) { // jshint ignore:line
+      var tag = Jymin.getTag(element);
+      var template = Tat._tags[tag];
+      if (template) {
+        Tat._populateElement(element, template);
       }
-      Tat._fallback = function (readyElement) {
-        Jymin.all(readyElement, '*', populate);
-      };
-      Jymin.onReady(Tat._fallback);
-      Jymin.bind(document, 'DOMNodeInserted', function (element, event, target) {
-        Tat._fallback = Jymin.doNothing;
-        populate(target);
-      });
     }
+    Tat._fallback = function (readyElement) {
+      Jymin.all(readyElement, '*', populate);
+    };
+    Jymin.onReady(Tat._fallback);
+    Jymin.bind(document, 'DOMNodeInserted', function (element, event, target) {
+      Tat._fallback = Jymin.doNothing;
+      populate(target);
+    });
   }
 };
 
@@ -93,11 +91,13 @@ Tat._populateElement = function (element, template) {
     // Save what we need for rendering, and render.
     element._state = state;
     element._template = template;
-    element._update = Tat._update;
-    element._render = Tat._render;
+    element._update = Tat._proto._update;
+    element._render = Tat._proto._render;
     element._render();
   }
 };
+
+Tat._proto = {};
 
 /**
  * Decorate an element's state with new data, and re-render it.
@@ -105,27 +105,47 @@ Tat._populateElement = function (element, template) {
  * @param  {Object} data  Properties and values to decorate the state.
  * @return {HTMLElement}
  */
-Tat._update = function (data) {
+Tat._proto._update = function (data) {
   var self = this;
   Jymin.decorateObject(self._state, data);
   self._render();
   return self;
 };
 
+Tat._renders = {};
+
 /**
  * Render an element's HTML, and if it's different from before, set it.
  * TODO: DOM diff.
  */
-Tat._render = function () {
+Tat._proto._render = function () {
   var self = this;
   var html = self._template.call(Tat._tags, self._state);
   if (html != self._renderedHtml) {
-    self._renderedHtml = html;
+
+    // TODO: Remove this because it's just for debugging.
+    var tag = Jymin.getTag(self);
+    Tat._renders[tag] = (Tat._renders[tag] || 0) + 1;
+
+    Tat._diff(self, html);
     Jymin.setHtml(self, html);
-    Jymin.ready(self);
+    self._renderedHtml = html;
+    if (document._isReady || Tat._fallback) {
+      Jymin.ready(self);
+    }
   }
   return self;
 };
+
+/**
+ * Set HTML by DOM diffing.
+ *
+ * @return {[type]} [description]
+ */
+Tat._diff = function (element, html) {
+  var virtual = Jymin.createElement('div', html);
+  // TODO: Actually write this shit.
+},
 
 /**
  * Evaluate a value as non-strict JSON if it looks object or array notation.

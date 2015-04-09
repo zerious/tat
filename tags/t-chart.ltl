@@ -1,0 +1,21 @@
+colors = Jymin.getChartColors()
+//for c in colors
+  ._color
+    ._swatch(style="background:#={c.background};border:3px solid #={c.border}") #={c.background}
+
++css
+
+  ._color {
+    display: inline-block;
+    vertical-align: top;
+    margin: 1px;
+    width: 4em;
+    height: 2em;
+  }
+
+  ._swatch {
+    width: 4em;
+    height: 2em;
+    text-align: center;
+    vertica-align: middle;
+  }

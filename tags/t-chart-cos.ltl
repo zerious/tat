@@ -1,0 +1,26 @@
+js
+  var colors = state.colors = [];
+  var colorize = function (n, m, o, c) {
+    return Math.ceil(c * Math.max(0, Math.cos(n * m + o)));
+  };
+
+  for (var i = 0; i < 100; i++) {
+    var r = colorize(i, 0.5, 2, 255);
+    var g = colorize(i, 1.1, 1, 200);
+    var b = colorize(i, 1.7, 0, 255);
+    console.log(r, g, b);
+    var c = 'rgb(' + r + ',' + g + ',' + b + ')';
+    colors.push(c);
+  }
+
+for color in colors
+  ._color(style="background:${color}")
+
++css
+  ._color {
+    display: inline-block;
+    width: 2em;
+    height: 2em;
+    vertical-align: top;
+    margin: 1px;
+  }

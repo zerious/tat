@@ -2,6 +2,10 @@ br {
   clear: both;
 }
 
+t-pad {
+  padding: 1em;
+}
+
 t-columns {
   clear: both;
   display: block;

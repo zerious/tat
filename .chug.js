@@ -7,7 +7,7 @@ require('figlet').text('Tat Client v' + exports.version, {font: 'Standard'}, fun
   figlet = figlet.replace(/\n/g, '\n *');
 
   var source = require('chug')([
-    'node_modules/jymin/scripts',
+    'node_modules/jymin/jymin.js',
     'scripts/tat-jymin.js'
   ]);
 

@@ -1,9 +1,9 @@
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
   font-weight: 400;
-  font-family: _sourceSansPro, Arial;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
 }
 
 body,
@@ -14,7 +14,9 @@ button,
 input,
 select,
 textarea {
-  font-size: 16px!important;
+  font-size: 16px;
+  font-family: _sourceSansPro, Arial;
+  line-height: 1.25;
 }
 
 pre,
@@ -43,15 +45,15 @@ h1 {
 }
 
 h2 {
-  font-size: 1.6em;
+  font-size: 1.5em;
 }
 
 h3 {
-  font-size: 1.3em;
+  font-size: 1.25em;
 }
 
 h4 {
-  font-size: 1.1em;
+  font-size: 1.125em;
 }
 
 h1, h2, h3, h4 {
