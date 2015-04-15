@@ -25,7 +25,8 @@ var Tat = window.Tat = function (tagName, template) {
  */
 Tat._tags = {
   '$': function(v){return (!v&&v!==0?'':(typeof v=='object'?Jymin.stringify(v)||'':''+v)).replace(/</g,'&lt;');},
-  '&': function(v){return Jymin.escape(!v&&v!==0?'':''+v);}
+  '&': function(v){return Jymin.escape(!v&&v!==0?'':''+v);},
+  '%': function(v){return Jymin.attrify(v);}
 };
 
 /**
@@ -77,8 +78,8 @@ Tat._populateElement = function (element, template) {
     // Get the element's innerHTML, and use it to initialize its state.
     var html = Jymin.getHtml(element);
     var state = {
-      _html: html,
-      _data: Tat._parseValue(html)
+      html: html,
+      data: Tat._parseValue(html)
     };
 
     // Add each attribute to the state.

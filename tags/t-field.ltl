@@ -46,7 +46,7 @@ label ${label}
   if type == 'select' || type == 'multi' || type == 'radio' || type == 'checkbox'
 
     // Build a map of selected values.
-    choices = choices || _data
+    choices = choices || data
     selected = {}
     if values !== undefined
       for v in values
@@ -80,7 +80,7 @@ label ${label}
     // Store the value in an input, to support form submission.
     input._tatSelect(name="${name}" value="${value}")
 
-    // Show the selectable choices.
+    // Show the selected choices.
     var._tatSelect(type="={type}")
       selectedCount = 0
       for key, item of selected
@@ -88,6 +88,7 @@ label ${label}
         if type == 'multi'
           a._tatSelected(value='${key}')
             t-icon(x)
+            space
             if tag
               ={tag}(key='${key}') ${item}
             else
@@ -99,6 +100,8 @@ label ${label}
             : ${item}
       if !selectedCount
         b._tatPlaceholder(${icon}) ${placeholder}
+
+    // Show the selectable/deselectable choices.
     ._tatContainer
       ._tatDrop
         for key, item of choices
@@ -118,7 +121,7 @@ label ${label}
 
   // A button is clickable.
   else if type == 'button' || type == 'submit' || type == 'create' || type == 'delete'
-    button(name="${name}" type="${type}") ${value || _html}
+    button(name="${name}" type="${type}") ${value || html}
 
   // A date field shows a calendar so you can select a date.
   // TODO: Date picker calendar.

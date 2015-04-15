@@ -2,7 +2,7 @@ if heading
   br
   h4 ${heading}
 
-: ={_html}
+: ={html}
 
 +css
 

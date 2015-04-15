@@ -1,11 +1,12 @@
 table
   tr
-    for name, text of _data.columns
+    for name, text of data.columns
       th ${text}
-  for row in _data.rows
+
+  for row in data.rows
     item = row
     tr
-      for name, text of _data.columns
+      for name, text of data.columns
         td ${item[name]}
 
 +css

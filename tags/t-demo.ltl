@@ -29,9 +29,10 @@
       path(d="M18,78c-16,16,8,40,24,24l12-12c16-16-8-40-24-24zm18,18c-8,8-20-4-12-12l12-12c8-8,20,4,12,12zM66,30c-16,16,8,40,24,24l12-12c16-16-8-40-24-24zm18,18c-8,8-20-4-12-12l12-12c8-8,20,4,12,12z")
       path(d="M42,72c-4,4,2,10,6,6l30-30c4-4-2-10-6-6z")
 
-t-chart(type="pie" data="{good:1,bad:3,ugly:1}")
-
 t-form(heading="Component Demo")
+
+  t-example
+    t-chart(type="pie" hole="30" legend data="{JavaScript:3461415,Java:2323315,Python:2323315,PHP:1391467,Ruby:1106259,'C++':1013761,C:804339,'C#':558332,Go:156070}")
 
   t-example
     t-field(label="Select" type="select" placeholder="Platform" choices="{android:'Android',ios:'iOS',web:'Mobile Web',windows:'Windows Phone','desktop':'Desktop'}" tag="tune-platform" value="ios")
@@ -41,7 +42,7 @@ t-form(heading="Component Demo")
 
   if users
     t-example
-      t-field(label="Who" type="select" placeholder="Who" values="['113','201','5','119','425']" tag="tune-user") ={_html}
+      t-field(label="Who" type="select" placeholder="Who" values="['113','201','5','119','425']" tag="tune-user") ={html}
 
   t-example
     t-field(label="Text" value="A value")
@@ -78,8 +79,7 @@ t-form(heading="Component Demo")
     t-field(label="Date" type="date")
 
   t-example
-    t-field(label="Date range" type="startDate")
-    t-field(type="endDate")
+    t-fields(label="Date range" type="dateRange")
 
   t-set(heading="Grid")
     t-example

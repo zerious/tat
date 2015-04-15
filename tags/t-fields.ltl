@@ -1,0 +1,12 @@
+if type == 'dateRange'
+  t-nowrap
+    t-field(label="${label}" type="startDate")
+    t-field(label="&nbsp;" type="endDate")
+
+
++css
+
+  t-nowrap {
+    display: block;
+    white-space: nowrap;
+  }

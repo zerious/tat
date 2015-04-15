@@ -101,4 +101,4 @@ svg(viewBox="0 0 120 120")
     fill: #26a;
   }
 
-: ={_html}
+: ={html}

@@ -1,9 +1,69 @@
-colors = Jymin.getChartColors()
-//for c in colors
-  ._color
-    ._swatch(style="background:#={c.background};border:3px solid #={c.border}") #={c.background}
+colors = colors || Jymin.getChartColors()
+
+if type == 'pie'
+
+  size = size || 120
+  hole = hole || 0
+  gap = gap || 1
+  center = size / 2
+  radius = size / 4
+  total = 0
+  c = 0
+  angle = 0
+  x1 = center
+  y1 = center - radius
+  x4 = x1
+  y4 = y1 + radius / 2
+
+  labels = true
+  fontSize = 12
+
+  for name, value of data
+    total = total + value
+
+  svg(viewBox="0 0 ={size} ={size}")
+    g(stroke-width="={center}" fill="none")
+      increment = 2 * Math.PI / total
+      gaps = ""
+      for name, value of data
+        color = colors[c++]
+        x2 = x1
+        y2 = y1
+        angle = angle + value * increment
+        sin = Math.sin(angle)
+        cos = Math.cos(angle)
+        x1 = center + radius * sin
+        y1 = center - radius * cos
+        g._tatSlice
+          path(stroke="={color}" d="M={x1},={y1}A={radius},={radius},0,0,0,={x2},={y2}" data="${[name,value]}")
+
+        if text
+          x = (x1 + x2 - center * 2) * 0.8 + center
+          y = (y1 + y2 - center * 2) * 0.8 + center
+          portion = value / total
+          text(x="={x}" y="={y}" text-anchor="middle" style="font-size:8;font-family:Arial;fill:#fff") ={(100 * portion).toFixed(0)}%
+
+        if gap
+          gaps = gaps + "M" + center + "," + center + "L" + (center + sin * center) + "," + (center - cos * center)
+
+    if gap
+      path._tatBackground(stroke-width="={gap}" d="={gaps}")
+
+    if hole
+      circle._tatBackground(cx="={center}" cy="={center}" r="={hole}")
 
 +css
+
+  t-chart svg {
+    display: inline-block;
+    width: 10em;
+    height: 10em;
+  }
+
+  ._tatBackground {
+    stroke: #f8f8f8;
+    fill: #f8f8f8;
+  }
 
   ._color {
     display: inline-block;
@@ -19,3 +79,5 @@ colors = Jymin.getChartColors()
     text-align: center;
     vertica-align: middle;
   }
+
+

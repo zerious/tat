@@ -1,10 +1,10 @@
 js
-  state._code = state._html
+  state._code = state.html
     .replace(/(^\s*|\s*$)/g, '')
     .replace(/\n\s{2}/g, '\n');
 
 t-columns
-  t-6 ={_html}
+  t-6 ={html}
   t-6>tt ${_code}
 
 +css

@@ -3,4 +3,4 @@ form(action="${action || '/'}" method="${method || 'post'}")
   if heading
     h3 ${heading}
 
-  : ={_html}
+  : ={html}
