@@ -73,7 +73,7 @@ Tat._registerTag = function (tagName, template) {
  * @param {Function}    template  A template function used to generate HTML.
  */
 Tat._populateElement = function (element, template) {
-  if (!element._template) {
+  if (!element._template && !Tat._merging) {
 
     // Get the element's innerHTML, and use it to initialize its state.
     var html = Jymin.getHtml(element);
@@ -117,7 +117,6 @@ Tat._renders = {};
 
 /**
  * Render an element's HTML, and if it's different from before, set it.
- * TODO: DOM diff.
  */
 Tat._proto._render = function () {
   var self = this;
@@ -128,9 +127,9 @@ Tat._proto._render = function () {
     var tag = Jymin.getTag(self);
     Tat._renders[tag] = (Tat._renders[tag] || 0) + 1;
 
-    Tat._diff(self, html);
-    Jymin.setHtml(self, html);
+    Tat._merge(self, html);
     self._renderedHtml = html;
+
     if (document._isReady || Tat._fallback) {
       Jymin.ready(self);
     }
@@ -139,13 +138,75 @@ Tat._proto._render = function () {
 };
 
 /**
- * Set HTML by DOM diffing.
+ * Set HTML by DOM merging.
  *
- * @return {[type]} [description]
  */
-Tat._diff = function (element, html) {
-  var virtual = Jymin.createElement('div', html);
-  // TODO: Actually write this shit.
+Tat._merge = function (element, newHtml) {
+
+  var id = 0;
+
+  function copyAttributes(a, b) {
+    //a.textContent = b.textContent;
+    if (a.setAttribute) {
+      var c = a.attributes;
+      var d = b.attributes;
+      var map = {};
+      for (var i = 0, l = d.length; i < l; i++) {
+        c[i] = d[i];
+      }
+      if (b.className) {
+        a.className = b.className;
+      }
+    }
+  }
+
+  function mergeNodes(a, b) {
+    var tag = '' + a.tagName + ++id;
+    var c = a.childNodes;
+    var d = b.childNodes;
+    var l = d.length;
+    console.log('merge: ' + tag + '#(' + c.length + '<-' + d.length + ')', a, b);
+    if (d && l) {
+      var i = -1;
+      while (++i < d.length) {
+        var m = c[i] || 0;
+        var n = d[i];
+        if (m.tagName == n.tagName) {
+          console.log('copy', n);
+          copyAttributes(m, n);
+          mergeNodes(m, n);
+        }
+        else {
+          console.log(m.tagName, n.tagName);
+          // If there's nothing in the current position, append.
+          if (!m) {
+            console.log('append', n);
+            a.appendChild(n);
+          }
+          // Otherwise, insert before the current position.
+          else {
+            console.log('insert', n);
+            a.insertBefore(n, m);
+            a.removeChild(m);
+          }
+        }
+      }
+      c.length = l;
+    }
+    else {
+      a.innerHTML = '';
+    }
+  }
+
+  var html = Jymin.getHtml(element);
+  if (0 && html) {
+    var virtual = document.createElement('div');
+    virtual.innerHTML = newHtml;
+    mergeNodes(element, virtual);
+  }
+  else {
+    Jymin.setHtml(element, newHtml);
+  }
 },
 
 /**

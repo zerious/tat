@@ -3,13 +3,13 @@ br {
 }
 
 t-pad {
-  padding: 1em;
+  padding: 16px;
 }
 
 t-columns {
   clear: both;
   display: block;
-  margin: -1em;
+  margin: -16px;
 }
 
 t-1, t-2, t-3,
@@ -18,7 +18,7 @@ t-7, t-8, t-9,
 t-10, t-11, t-12 {
   display: block;
   float: left;
-  padding: 1em;
+  padding: 16px;
 }
 
 t-1 { width: 8.33%; }

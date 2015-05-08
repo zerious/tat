@@ -20,19 +20,26 @@ label ${label}
      | |/ _/ _ \ ' \
     |___\__\___/_||_|
 
-  icon = type
-  if type == 'startDate' || type == 'endDate'
-    icon = (type == 'startDate' ? 'date' : 'range')
-    type = 'date'
+  style = ''
 
-  if type == 'select' && values !== undefined
-    type = 'multi'
+  if icon
+    a-icon(${icon})
+    style = 'padding-left:40px!important;'
 
-  if type == 'multi'
-    icon = 'select'
+  else
+    icon = type
+    if type == 'startDate' || type == 'endDate'
+      icon = (type == 'startDate' ? 'date' : 'range')
+      type = 'date'
 
-  if type == 'search' || type == 'email' || type == 'username' || type == 'password' || type == 'url' || type == 'select' || type == 'multi' || type == 'date'
-    t-icon(${icon})
+    if type == 'select' && values !== undefined
+      type = 'multi'
+
+    if type == 'multi'
+      icon = 'select'
+
+    if type == 'search' || type == 'email' || type == 'username' || type == 'password' || type == 'url' || type == 'select' || type == 'multi' || type == 'date'
+      t-icon(${icon})
 
   // ___                _
     |_ _|_ _  _ __ _  _| |_
@@ -41,7 +48,7 @@ label ${label}
              |_|
 
   // Give inputs a sensible default width.
-  width = width || (type == 'area' ? '100%' : '10em')
+  width = width || (type == 'area' ? '100%' : '160px')
 
   if type == 'select' || type == 'multi' || type == 'radio' || type == 'checkbox'
 
@@ -59,20 +66,20 @@ label ${label}
   // Prevent browser re-styling of a search input.
   if type == 'search'
     type = '_tatSearch'
-    width = '18em'
+    width = '1128px'
 
   // Email, username and password inputs have equal widths for login pages.
   if type == 'email' || type == 'username' || type == 'password'
     placeholder = placeholder || type
-    width = '12em'
+    width = '192px'
 
   // Make URL inputs very wide.
   if type == 'url'
-    width = '18em'
+    width = '1128px'
 
   // Make date inputs just the right size.
   if type == 'date'
-    width = '8em'
+    width = '128px'
 
   // A select field shows choices in a dropdown.
   if type == 'select' || type == 'multi'
@@ -142,6 +149,7 @@ label ${label}
           else
             input._tatChoice(type="={type}" name="_${name}" value='${key}')
             t-icon._tatSelect(={type})
+            space
           if tag
             ={tag} ${item}
           else
@@ -152,8 +160,7 @@ label ${label}
 
   // The default is to show a text input, optionally with an HTML5 type.
   else
-    input(type="${type || 'text'}" name="${name}" value="${value}" placeholder="${placeholder}" style="width:${width}")
-
+    input(type="${type || 'text'}" name="${name}" value="${value}" placeholder="${placeholder}" style="width:${width};={style}") ={html}
 
 // ___ _        _
   / __| |_ _  _| |___
@@ -175,7 +182,7 @@ label ${label}
     /* Allow multiple fields on one line. */
     display: inline-block;
     vertical-align: top;
-    margin: 0 0.25em 0.5em 0;
+    margin: 0 4px 8px 0;
   }
 
   t-field[width="100%"] {
@@ -187,7 +194,7 @@ label ${label}
    */
   t-field>label {
     /* Labels are less important than form data. */
-    font-size: 0.875em;
+    font-size: 14px;
     /* Light slate gray looks link-ish but unimportant. */
     color: #abc;
   }
@@ -226,26 +233,30 @@ label ${label}
   ._tatDrop,
   /* A button looks like a button, even if it's a link. */
   ._tatButton {
-    border-radius: 0.25em;
+    border-radius: 4px;
     border: 1px solid #abc;
-    padding: 0.25em 0.5em 0.25em!important;
+    padding: 6px 8px!important;
     background: #fff;
     color: #333;
-    font-size: 1.25em;
+    font-size: 18px;
     font-style: normal;
     outline: 0;
   }
 
-  button,
-  input,
-  textarea,
-  var,
-  ._tatButton,
-  ._tatSelect,
-  ._tatSelected,
-  ._tatPlaceholder,
-  ._tatDrop {
-    line-height: 1.5!important;
+  ::-webkit-input-placeholder {
+    color: #c2c9cf;
+  }
+
+  :-moz-placeholder { /* Firefox 18- */
+    color: #c2c9cf;
+  }
+
+  ::-moz-placeholder {  /* Firefox 19+ */
+    color: #c2c9cf;
+  }
+
+  :-ms-input-placeholder {
+    color: #c2c9cf;
   }
 
   /**
@@ -292,9 +303,9 @@ label ${label}
   button:focus,
   label._tatLit>var,
   a._tatButton {
-    border-color: #26a;
+    border-color: #26a!important;
     color: #000;
-    box-shadow: 0 0 0.125em 0.25em rgba(34,102,170,0.1)!important;
+    box-shadow: 0 0 2px 4px rgba(34,102,170,0.1)!important;
   }
 
   /**
@@ -303,13 +314,13 @@ label ${label}
   button,
   a._tatButton {
     border-color: #26a;
-    box-shadow: #48c 0 0.0625em 0 0 inset;
+    box-shadow: #48c 0 1px 0 0 inset;
     background: #26a;
-    text-shadow: #013 0 0.0625em 0;
+    text-shadow: #013 0 1px 0;
     color: #eef;
     font-weight: 600;
     cursor: pointer;
-    padding: 0.25em 1em!important;
+    padding: 4px 16px!important;
     width: auto;
   }
 
@@ -329,9 +340,9 @@ label ${label}
    */
   button[type=create] {
     border-color: #080;
-    box-shadow: #2a2 0 0.0625em 0 0 inset;
+    box-shadow: #2a2 0 1px 0 0 inset;
     background: #090;
-    text-shadow: #010 0 -0.0625em 0;
+    text-shadow: #010 0 -1px 0;
     color: #efe;
   }
   button[type=create]:hover,
@@ -345,9 +356,9 @@ label ${label}
    */
   button[type=delete] {
     border-color: #800;
-    box-shadow: #b33 0 0.0625em 0 0 inset;
+    box-shadow: #b33 0 1px 0 0 inset;
     background: #900;
-    text-shadow: #100 0 -0.0625em 0;
+    text-shadow: #100 0 -1px 0;
     color: #fee;
   }
   button[type=delete]:hover,
@@ -376,18 +387,18 @@ label ${label}
   input[type=password],
   input[type=url],
   input[type=_tatSearch] {
-    padding-left: 2.25em!important;
-    width: 15em;
+    padding-left: 40px!important;
+    width: 240px;
   }
   input._tatDate {
-    width: 7.5em;
+    width: 128px;
   }
 
   /**
    * An end date in a range should overlap the previous field.
    */
   t-field[type=endDate] {
-    margin-left: -0.75em;
+    margin-left: -12px;
   }
   t-field[type=endDate] ._tatDate {
     border-left: 0;
@@ -398,10 +409,11 @@ label ${label}
   /**
    * An icon can hover over an input.
    */
-  t-field>label>t-icon {
+  t-field>label>t-icon,
+  t-field>label>a-icon {
     position: absolute;
-    left: 0.5em;
-    bottom: 0.3875em;
+    left: 4px;
+    bottom: 3px;
     opacity: 0.5;
   }
 
@@ -411,18 +423,19 @@ label ${label}
   t-icon[select],
   t-icon[multi] {
     left: auto;
-    right: 0.25em!important;
-    bottom: 0.375em;
+    right: 4px!important;
+    bottom: 6px;
     cursor: pointer;
   }
 
-  label._tatLit>t-icon {
+  label._tatLit>t-icon,
+  label._tatLit>a-icon {
     opacity: 1;
   }
 
   var._tatSelect {
-    padding-right: 1.75em!important;
-    min-height: 2.1875em;
+    padding-right: 28px!important;
+    min-height: 36px;
   }
 
   var._tatSelect {
@@ -435,19 +448,19 @@ label ${label}
   }
 
   ._tatDrop {
-    max-height: 16em;
+    max-height: 240px;
     overflow: auto;
     margin: 0!important;
     border-color: #26a!important;
     padding: 0!important;
-    box-shadow: 0 0.125em 0.125em 0.125em rgba(34,102,170,0.1)!important;
+    box-shadow: 0 2px 2px 2px rgba(34,102,170,0.1)!important;
   }
 
   a._tatSelect {
     position: relative;
     display: block;
     margin: 0!important;
-    padding: 0.125em 0.5em 0.125em 1.5em!important;
+    padding: 2px 8px 2px 24px!important;
     color: #666;
     white-space: nowrap;
     cursor: pointer;
@@ -455,7 +468,7 @@ label ${label}
   a._tatSelect._tatLit {
     color: #000;
     background: #eef2ff;
-    border-radius: 0.25em;
+    border-radius: 4px;
   }
 
   /**
@@ -463,28 +476,28 @@ label ${label}
    */
   a>t-icon[selected] {
     position: absolute;
-    left: 0.25em!important;
-    top: 0.375em!important;
+    left: 4px!important;
+    top: 6px!important;
   }
-  a>t-icon[selected]>svg {
-    width: 1em;
-    height: 1em;
+  a>t-icon[selected] {
+    width: 16px;
+    height: 16px;
   }
 
   /**
    * A selected item in a multi-select is seen as an inline block with an X.
    */
   var._tatSelect[type=multi] {
-    padding: 0 1.5em 0 0!important;
+    padding: 0 24px 0 0!important;
   }
   a._tatSelected,
   var[type=multi]>b._tatPlaceholder {
     display: inline-block;
     white-space: nowrap;
-    padding: 0.125em 0.5em 0.125em 0.25em!important;
-    margin: 0.0625em;
+    padding: 2px 8px 2px 4px!important;
+    margin: 1px;
     border: 1px solid #eee;
-    border-radius: 0.25em;
+    border-radius: 4px;
     font-weight: normal;
     color: #333;
     cursor: pointer;
@@ -500,8 +513,8 @@ label ${label}
   a._tatSelected>t-icon {
     display: inline-block;
     vertical-align: top;
-    margin: 0.75em 0;
-    font-size: 0.5em;
+    margin: 12px 0;
+    font-size: 8px;
   }
   b._tatPlaceholder {
     color: #ccc!important;
@@ -517,14 +530,12 @@ label ${label}
   a._tatSelect>*>t-icon {
     display: inline-block;
     vertical-align: top;
-    margin: -0.125 0.5em 0.125em 0;
+    margin: -0.125 8px 2px 0;
   }
   var._tatSelect>*>t-icon,
-  a._tatSelect>*>t-icon,
-  var._tatSelect>*>t-icon>svg,
-  a._tatSelect>*>t-icon>svg {
-    width: 1.5em;
-    height: 1.5em;
+  a._tatSelect>*>t-icon {
+    width: 24px;
+    height: 24px;
   }
 
   /**
@@ -532,9 +543,8 @@ label ${label}
    */
   label._tatChoice {
     display: inline-block;
-    margin: 0.125em 0.25em 0.125em 0;
-    padding: 0.25em 0.75em 0.25em 0.375em;
-    /*font-size: 1rem!important;*/
+    margin: 2px 4px 2px 0;
+    padding: 4px 12px 4px 6px;
     color: #666;
     cursor: pointer;
     border: 1px solid transparent;
@@ -543,15 +553,15 @@ label ${label}
   label._tatChoice:hover {
     color: #012;
     background: #eef2ff;
-    border-radius: 0.5em;
+    border-radius: 8px;
     border-color: #cdf;
   }
   t-icon[radio],
   t-icon[checkbox] {
     vertical-align: top;
-    width: 1em;
-    height: 1em;
-    margin: -0.125em 0.75em 0 0;
+    width: 24px;
+    height: 24px;
+    margin: -2px 0;
   }
 
 // ___         _      _

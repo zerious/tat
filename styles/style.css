@@ -16,7 +16,7 @@ select,
 textarea {
   font-size: 16px;
   font-family: _sourceSansPro, Arial;
-  line-height: 1.25;
+  line-height: 24px;
 }
 
 pre,
@@ -41,19 +41,19 @@ b {
 }
 
 h1 {
-  font-size: 2em;
+  font-size: 28px;
 }
 
 h2 {
-  font-size: 1.5em;
+  font-size: 24px;
 }
 
 h3 {
-  font-size: 1.25em;
+  font-size: 20px;
 }
 
 h4 {
-  font-size: 1.125em;
+  font-size: 18px;
 }
 
 h1, h2, h3, h4 {
@@ -86,5 +86,5 @@ h1, h2, h3, h4 {
 }
 
 p, form {
-  margin: 0 0 2em 0;
+  margin: 0 0 32px 0;
 }

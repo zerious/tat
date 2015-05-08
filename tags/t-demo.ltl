@@ -1,34 +1,3 @@
-//.
-  style:
-    t-icon._show {
-      width: 4em;
-      height: 4em;
-    }
-    t-icon._show svg {
-      width: 4em;
-      height: 4em;
-      background: #fff;
-      border: 1px solid #ddd;
-    }
-
-  t-icon._show(ios)
-  t-icon._show(android)
-  t-icon._show(windows)
-  t-icon._show(web)
-  t-icon._show(search)
-  t-icon._show(date)
-  t-icon._show(email)
-  t-icon._show(username)
-  t-icon._show(password)
-  t-icon._show(url)
-  t-icon._show(range)
-  t-icon._show(select)
-  t-icon._show(multi)
-  t-icon._show(selected)
-             ._tatIconLightFill(stroke-width="5" stroke="#666")
-      path(d="M18,78c-16,16,8,40,24,24l12-12c16-16-8-40-24-24zm18,18c-8,8-20-4-12-12l12-12c8-8,20,4,12,12zM66,30c-16,16,8,40,24,24l12-12c16-16-8-40-24-24zm18,18c-8,8-20-4-12-12l12-12c8-8,20,4,12,12z")
-      path(d="M42,72c-4,4,2,10,6,6l30-30c4-4-2-10-6-6z")
-
 t-form(heading="Component Demo")
 
   t-example

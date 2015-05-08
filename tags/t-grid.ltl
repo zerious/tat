@@ -13,12 +13,12 @@ table
 
   t-grid table {
     border-collapse: collapse;
-    border-radius: 0.2em;
+    border-radius: 4px;
   }
 
   t-grid td,
   t-grid th {
-    padding: 0.2em 0.5em;
+    padding: 4px 8px;
     text-align: left;
     vertical-align: top;
     font-weight: 400;
@@ -27,7 +27,7 @@ table
   t-grid th {
     background: #ddd;
     color: #666;
-    font-size: 0.9em;
+    font-size: 14px;
   }
 
   t-grid tr {

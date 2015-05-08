@@ -1,0 +1,85 @@
+: ={html}
+
+js
+  var n = +location.href.replace(/^.*#/, '');
+  var active = state.tab || (isNaN(n) ? 0 : n);
+  console.log(active);
+  var count = 0;
+  var index = 0;
+  output = output.replace(/<t-page/g, function (tag) {
+    return tag + (count++ == active ? ' class="_on"' : '');
+  });
+  var width = 100 / count;
+  var css = 'width:' + width + '%;'
+  output = output.replace(/<t-tab/g, function (tag) {
+    return tag + (index == active ? ' class="_on"' : '') + ' style="' + css + '" data-index="' + index++ + '"';
+  });
+  state.css = css + 'left:' + (width * active) + '%;';
+
+._tabIndicator(style="={css}")
+
++css
+
+  t-tabs {
+    position: relative;
+    display: block;
+    margin-top: 40px;
+  }
+
+  t-strip {
+    position: fixed;
+    display: block;
+    z-index: 5;
+    top: 40px;
+    width: 100%;
+    height: 40px;
+    white-space: nowrap;
+  }
+
+  t-tab {
+    display: block;
+    float: left;
+    text-align: center;
+    padding: 4px 0;
+    opacity: 0.5;
+  }
+
+  t-tab._on {
+    opacity: 1;
+  }
+
+  t-page {
+    display: block;
+    padding: 8px;
+  }
+
+  t-tabs t-page {
+    display: none;
+  }
+
+  t-tabs t-page._on {
+    display: block;
+  }
+
+  ._tabIndicator {
+    position: fixed;
+    display: block;
+    z-index: 6;
+    background: #ec5;
+    top: 74px;
+    height: 5px;
+    box-shadow: 1px 1px rgba(0,0,0,0.5);
+  }
+
+
++js
+
+  Jymin.on('t-tab', 'mouseup,touchend', function (tab) {
+    var index = Jymin.getData(tab, 'index') * 1;
+    var strip = Jymin.getParent(tab);
+    var tabs = Jymin.getParent(strip);
+    Jymin.historyReplace(location.href.replace(/(#\d+)?$/, '#' + index));
+    tabs._update({tab: index});
+  });
+
+

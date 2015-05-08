@@ -1,63 +1,74 @@
-colors = colors || Jymin.getChartColors()
+colors_ = colors || Jymin.getChartColors()
 
 if type == 'pie'
 
-  size = size || 120
-  hole = hole || 0
-  gap = gap || 1
-  center = size / 2
-  radius = size / 4
-  total = 0
-  c = 0
-  angle = 0
-  x1 = center
-  y1 = center - radius
-  x4 = x1
-  y4 = y1 + radius / 2
+  size_ = size || 120
+  hole_ = hole || 0
+  gap_ = gap || 1
+  center_ = size_ / 2
+  radius_ = size_ / 4
+  total_ = 0
+  index_ = 0
+  count_ = 0
+  angle_ = 0
+  x1_ = center_
+  y1_ = center_ - radius_
+  x4_ = x1_
+  y4_ = y1_ + radius_ / 2
 
-  labels = true
-  fontSize = 12
 
   for name, value of data
-    total = total + value
+    count_ = count_ + 1
+    total_ = total_ + value
 
-  svg(viewBox="0 0 ={size} ={size}")
-    g(stroke-width="={center}" fill="none")
-      increment = 2 * Math.PI / total
-      gaps = ""
+  svg(viewBox="0 0 ={size_} ={size_}")
+    g(stroke-width="={center_}" fill="none")
+      increment_ = 2 * Math.PI / total_
+      gaps_ = ""
       for name, value of data
-        color = colors[c++]
-        x2 = x1
-        y2 = y1
-        angle = angle + value * increment
-        sin = Math.sin(angle)
-        cos = Math.cos(angle)
-        x1 = center + radius * sin
-        y1 = center - radius * cos
+        color_ = colors_[index_++]
+        x2_ = x1_
+        y2_ = y1_
+        angle_ = angle_ + value * increment_
+        sin_ = Math.sin(angle_)
+        cos_ = Math.cos(angle_)
+        x1_ = center_ + radius_ * sin_
+        y1_ = center_ - radius_ * cos_
         g._tatSlice
-          path(stroke="={color}" d="M={x1},={y1}A={radius},={radius},0,0,0,={x2},={y2}" data="${[name,value]}")
+          path(stroke="={color_}" d="M={x1_},={y1_}A={radius_},={radius_},0,0,0,={x2_},={y2_}" data="${[name,value]}")
 
-        if text
-          x = (x1 + x2 - center * 2) * 0.8 + center
-          y = (y1 + y2 - center * 2) * 0.8 + center
-          portion = value / total
-          text(x="={x}" y="={y}" text-anchor="middle" style="font-size:8;font-family:Arial;fill:#fff") ={(100 * portion).toFixed(0)}%
+        if gap_
+          gaps_ = gaps_ + "M" + center_ + "," + center_ + "L" + (center_ + sin_ * center_) + "," + (center_ - cos_ * center_)
 
-        if gap
-          gaps = gaps + "M" + center + "," + center + "L" + (center + sin * center) + "," + (center - cos * center)
+    if gap_
+      path._tatBackground(stroke-width="={gap_}" d="={gaps_}")
 
-    if gap
-      path._tatBackground(stroke-width="={gap}" d="={gaps}")
+    if hole_
+      circle._tatBackground(cx="={center_}" cy="={center_}" r="={hole_}")
 
-    if hole
-      circle._tatBackground(cx="={center}" cy="={center}" r="={hole}")
+  if legend === ''
+    rows_ = Math.ceil(size_ / 20)
+    index_ = 0
+    ._tatLegend
+      for name, value of data
+        if index_ % rows_ == 0
+          : <div class="_tatLegendColumn">
+        color_ = colors_[index_++]
+        ._tatLegendItem
+          i(style="background:={color_}")
+          space
+          : ${name}
+          br
+        if (index_ % rows_ == 0) || (index_ == count_)
+          : </div>
 
 +css
 
   t-chart svg {
     display: inline-block;
-    width: 10em;
-    height: 10em;
+    float: left;
+    width: 144px;
+    height: 144px;
   }
 
   ._tatBackground {
@@ -65,19 +76,26 @@ if type == 'pie'
     fill: #f8f8f8;
   }
 
-  ._color {
+  ._tatLegend {
+    padding: 4px;
+  }
+
+  ._tatLegend,
+  ._tatLegendColumn {
     display: inline-block;
-    vertical-align: top;
-    margin: 1px;
-    width: 4em;
-    height: 2em;
+    float: left;
   }
 
-  ._swatch {
-    width: 4em;
-    height: 2em;
-    text-align: center;
-    vertica-align: middle;
+  ._tatLegendItem {
+    padding: 2px;
+    display: block;
+    white-space: nowrap;
   }
 
-
+  ._tatLegendItem>i {
+    display: inline-block;
+    float: left;
+    width: 16px;
+    height: 16px;
+    margin: 0 4px -2px 16px;
+  }
